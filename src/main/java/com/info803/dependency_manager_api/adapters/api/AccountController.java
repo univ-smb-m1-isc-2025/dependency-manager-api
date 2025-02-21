@@ -1,7 +1,5 @@
 package com.info803.dependency_manager_api.adapters.api;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +19,7 @@ public class AccountController {
     public String accountList() {
         logger.info("accountsList");
         var accounts = accountService.accountList();
-        return accounts != null ? accounts.toString() : "No accounts found";
+        return accounts != null ? "Accounts found" : "No accounts found";
     }
     
 }
