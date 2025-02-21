@@ -21,7 +21,11 @@ public class AccountService {
     }
 
     public Account account(Long accountId) {
-        return repository.findById(accountId).orElse(null);
+        Optional<Account> account = repository.findById(accountId);
+        if (!account.isPresent()) {
+            throw new IllegalArgumentException("Account not found");
+        }
+        return account.get();
     }
 
     public void delete(Long accountId) {
