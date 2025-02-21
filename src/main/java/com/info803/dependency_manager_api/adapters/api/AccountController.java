@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -32,7 +31,8 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    public Account account(@PathVariable Long id) {
+    public Optional<Account> account(@PathVariable Long id) {
+        logger.info("account");
         return accountService.account(id);
     }
     

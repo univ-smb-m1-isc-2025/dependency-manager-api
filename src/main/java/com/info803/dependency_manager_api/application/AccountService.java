@@ -20,11 +20,10 @@ public class AccountService {
         return repository.findAll();
     }
 
-    public Account account(Long accountId) {
-        Optional<Account> account = repository.findById(accountId);
-        return account.isPresent() ? account.get() : new Account();
+    public Optional<Account> account(Long accountId) {
+        return repository.findById(accountId);
     }
-
+    
     public void delete(Long accountId) {
         Optional<Account> account = repository.findById(accountId);
         account.ifPresent(repository::delete);
