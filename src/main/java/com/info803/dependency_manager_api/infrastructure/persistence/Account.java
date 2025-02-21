@@ -6,6 +6,8 @@ import jakarta.persistence.Id;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Account {
 
@@ -13,9 +15,10 @@ public class Account {
     @GeneratedValue
     private Long id;
     private String mail;
-    private String password;
     private String createdAt;
     private String mailVerifiedAt;
+    @JsonIgnore
+    private String password;
 
     // Constructor
     public Account() {}
