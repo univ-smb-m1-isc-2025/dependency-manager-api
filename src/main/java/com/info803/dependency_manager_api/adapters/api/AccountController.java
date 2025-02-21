@@ -7,11 +7,15 @@ import com.info803.dependency_manager_api.application.AccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
+@RequestMapping("/api/accounts")
 public class AccountController {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private final AccountService accountService;
@@ -20,9 +24,16 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @GetMapping(value = "/api/accounts")
+    @GetMapping
     public List<Account> accountList() {
         logger.info("accountsList");
         return accountService.accountList();
     }
+
+    @GetMapping("/{id}")
+    public Account account(@RequestParam(name = "id") Long id) {
+        logger.info("account");
+        return accountService.account(id);
+    }
+    
 }

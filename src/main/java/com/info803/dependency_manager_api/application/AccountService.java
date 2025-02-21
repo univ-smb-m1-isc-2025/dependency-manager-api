@@ -20,6 +20,9 @@ public class AccountService {
         return repository.findAll();
     }
 
+    public Account account(Long accountId) {
+        return repository.findById(accountId).orElse(null);
+    }
 
     public void delete(Long accountId) {
         Optional<Account> account = repository.findById(accountId);
