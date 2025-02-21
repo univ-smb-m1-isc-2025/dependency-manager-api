@@ -20,9 +20,8 @@ public class AccountController {
     @GetMapping(value = "/api/accounts")
     public String accountList() {
         logger.info("accountsList");
-        return "accountsList";
-        //var accounts = accountService.accountList();
-        //return accounts != null ? accounts.toString() : "No accounts found";
+        var accounts = accountService.accountList();
+        return accounts != null ? accounts.toString() : "No accounts found";
     }
     
 }

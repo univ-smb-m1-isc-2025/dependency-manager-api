@@ -17,7 +17,10 @@ public class AccountService {
     }
 
     public List<Account> accountList() {
-        return repository.findAll();
+        var Account1 = new Account("admin@mail", "admin");
+        var Account2 = new Account("user@mail", "user");
+        return List.of(Account1, Account2);
+        //return repository.findAll();
     }
 
     public void delete(Long accountId) {
