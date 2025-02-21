@@ -18,6 +18,8 @@ public class Account {
     private String mailVerifiedAt;
 
     // Constructor
+    public Account() {}
+
     public Account(String mail, String password) {
         this.mail = mail;
         this.password = password;
