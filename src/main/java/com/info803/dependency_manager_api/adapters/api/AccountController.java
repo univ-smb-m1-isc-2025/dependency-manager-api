@@ -7,6 +7,7 @@ import com.info803.dependency_manager_api.application.AccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,8 +32,7 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    public Account account(@RequestParam(name = "id") Long id) {
-        logger.info("account");
+    public Account account(@PathVariable Long id) {
         return accountService.account(id);
     }
     
