@@ -28,7 +28,7 @@ class Initializer {
         if (depotRepository.findAll().isEmpty()) {
             // Get the first account
             Long accountId = accountRepository.findAll().get(0).getId();
-            depotRepository.save(new Depot("maven-central", "https://repo.maven.apache.org/maven2/", "token", accountId));
+            depotRepository.save(new Depot("Clement test", "https://github.com/Oziphos/test.git", "token", accountId));
         }
     }
 

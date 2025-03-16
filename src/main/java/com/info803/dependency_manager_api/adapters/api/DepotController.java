@@ -112,4 +112,15 @@ public class DepotController {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
         }
     }
+
+    @GetMapping("/{id}/clone")
+    public ResponseEntity<ApiResponse<String>> gitClone(@PathVariable Long id) {
+        logger.info("clone");
+        try {
+            String msg = depotService.gitClone(id);
+            return ResponseEntity.ok(new ApiResponse<>(msg));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+        }
+    }
 }

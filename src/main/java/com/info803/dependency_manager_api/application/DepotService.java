@@ -50,5 +50,13 @@ public class DepotService {
     public void update(Depot depot) {
         // TODO : implement
     }
-    
+
+    public String gitClone(Long id) {
+        Optional<Depot> depot = depotRepository.findById(id);
+        if (!depot.isPresent()) {
+            throw new IllegalArgumentException("Depot not found");
+        }
+        return depot.get().gitClone();
+    }
+
 }
