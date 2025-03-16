@@ -6,6 +6,7 @@ import com.info803.dependency_manager_api.application.AccountService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,9 +34,14 @@ public class AccountController {
      */
 
     @GetMapping
-    public List<Account> accountList() {
+    public ResponseEntity<ApiResponse<List<Account>>> accountList() {
         logger.info("accountsList");
-        return accountService.accountList();
+        try {
+            List<Account> accounts = accountService.accountList();  
+            return ResponseEntity.ok(new ApiResponse<>("Accounts retrieved", accounts));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+        }
     }
 
     /**
@@ -45,12 +51,13 @@ public class AccountController {
      * @return an Optional containing the Account object corresponding to the given id, or an empty Optional if no such account exists
      */
     @GetMapping("/{id}")
-    public Optional<Account> account(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Optional<Account>>> account(@PathVariable Long id) {
         logger.info("account");
         try {
-            return accountService.account(id);  
+            Optional<Account> account = accountService.account(id);  
+            return ResponseEntity.ok(new ApiResponse<>("Account retrieved", account));
         } catch (IllegalArgumentException e) {
-            return Optional.empty();
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
         }
     }
 
@@ -61,13 +68,13 @@ public class AccountController {
      * @return a String indicating whether the account was created or already exists
      */
     @PostMapping("/create")
-    public String signUp(@RequestBody Account account) {
+    public ResponseEntity<ApiResponse<String>> create(@RequestBody Account account) {
         logger.info("create"); 
         try {
             accountService.create(account.getMail(), account.getPassword());  
-            return "Account created";
+            return ResponseEntity.ok(new ApiResponse<>("Account created"));
         } catch (IllegalArgumentException e) {
-            return "Account already exists";
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
         }
     }
 
@@ -78,13 +85,13 @@ public class AccountController {
      * @return a String indicating whether the account was deleted or not
      */
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) {
         logger.info("delete"); 
-        try {
+        try { 
             accountService.delete(id);  
-            return "Account deleted";
+            return ResponseEntity.ok(new ApiResponse<>("Account deleted"));
         } catch (IllegalArgumentException e) {
-            return "Account not found";
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
         }
     }
 }
