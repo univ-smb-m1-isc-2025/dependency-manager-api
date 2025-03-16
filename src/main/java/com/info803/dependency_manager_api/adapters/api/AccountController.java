@@ -56,9 +56,9 @@ public class AccountController {
      * @param account the Account object containing the email and password
      * @return a String indicating whether the account was created or already exists
      */
-    @PostMapping("/signup")
+    @PostMapping("/create")
     public String signUp(@RequestBody Account account) {
-        logger.info("signUp"); 
+        logger.info("create"); 
         try {
             accountService.create(account.getMail(), account.getPassword());  
             return "Account created";
@@ -66,6 +66,21 @@ public class AccountController {
             return "Account already exists";
         }
     }
-    
-    
+
+    /**
+     * Deletes an account by its id.
+     *
+     * @param id the unique identifier of the account to delete
+     * @return a String indicating whether the account was deleted or not
+     */
+    @GetMapping("/delete/{id}")
+    public String delete(@PathVariable Long id) {
+        logger.info("delete"); 
+        try {
+            accountService.delete(id);  
+            return "Account deleted";
+        } catch (IllegalArgumentException e) {
+            return "Account not found";
+        }
+    }
 }
