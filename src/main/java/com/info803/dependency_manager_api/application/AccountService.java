@@ -45,6 +45,17 @@ public class AccountService {
     }
 
     public void update(Account account) {
+        // Retrieve the account from the database
+        Account existingAccount = repository.findById(account.getId())
+        .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+
+        // Check if the email is already in use by another account
+        Optional<Account> accountWithMail = repository.findByMail(account.getMail());
+        if (accountWithMail.isPresent() && !accountWithMail.get().getId().equals(existingAccount.getId())) {
+            throw new IllegalArgumentException("Email already in use");
+        }
+
+        // Update the account in the database
         repository.save(account);
     }
 }
