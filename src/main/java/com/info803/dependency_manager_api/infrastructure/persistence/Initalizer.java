@@ -7,19 +7,28 @@ import jakarta.annotation.PostConstruct;
 @Service
 class Initializer {
 
-    private final AccountRepository repository;
+    private final AccountRepository accountRepository;
+    private final DepotRepository depotRepository;
 
-    public Initializer(AccountRepository repository) {
-        this.repository = repository;
+    public Initializer(AccountRepository accountRepository, DepotRepository depotRepository) {
+        this.accountRepository = accountRepository;
+        this.depotRepository = depotRepository;
     }
 
     @PostConstruct
     public void initialize() {
 
-        repository.deleteAllInBatch();
+        accountRepository.deleteAllInBatch();
 
-        if (repository.findAll().isEmpty()) {
-            repository.saveAndFlush(new Account("admin@mail", "admin"));
+        if (accountRepository.findAll().isEmpty()) {
+            accountRepository.saveAndFlush(new Account("admin@mail", "admin"));
+        }
+
+        depotRepository.deleteAllInBatch();
+        if (depotRepository.findAll().isEmpty()) {
+            // Get the first account
+            Long accountId = accountRepository.findAll().get(0).getId();
+            depotRepository.save(new Depot("maven-central", "https://repo.maven.apache.org/maven2/", "token", accountId));
         }
     }
 
