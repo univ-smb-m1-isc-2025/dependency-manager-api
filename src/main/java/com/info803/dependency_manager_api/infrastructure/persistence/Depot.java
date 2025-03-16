@@ -4,6 +4,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
+// Git import
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+
+import java.io.File;
+import java.io.IOException;
+
 @Entity
 public class Depot {
     @Id
@@ -61,5 +69,20 @@ public class Depot {
 
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
+    }
+
+    // Methods
+    public String gitClone() {
+        try {
+            // Clone the repository
+            Git.cloneRepository()
+                .setURI(url)
+                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
+                .setDirectory(new File("depots/" + name))
+                .call();
+            return "Depot cloned successfully to depots/" + name;
+        } catch (Exception e) {
+            return "Error cloning depot: " + e.getMessage();
+        }
     }
 }
