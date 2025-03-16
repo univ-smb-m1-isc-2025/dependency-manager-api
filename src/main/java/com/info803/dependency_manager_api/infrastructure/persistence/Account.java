@@ -1,5 +1,6 @@
 package com.info803.dependency_manager_api.infrastructure.persistence;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -14,7 +15,10 @@ public class Account {
     @Id
     @GeneratedValue
     private Long id;
+
+    @Column(unique = true)
     private String mail;
+
     private String createdAt;
     private String mailVerifiedAt;
     @JsonIgnore
