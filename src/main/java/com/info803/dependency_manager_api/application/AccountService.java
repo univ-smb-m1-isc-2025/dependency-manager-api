@@ -65,6 +65,10 @@ public class AccountService {
     }
 
     public List<Depot> accountDepots(Long accountId) {
+        Optional<Account> account = accountRepository.findById(accountId);
+        if (!account.isPresent()) {
+            throw new IllegalArgumentException("Account not found");
+        }
         return depotRepository.findByAccountId(accountId);
     }
 }
