@@ -2,6 +2,7 @@ package com.info803.dependency_manager_api.adapters.api;
 
 
 import com.info803.dependency_manager_api.infrastructure.persistence.Account;
+import com.info803.dependency_manager_api.infrastructure.persistence.Depot;
 import com.info803.dependency_manager_api.application.AccountService;
 
 import org.slf4j.Logger;
@@ -62,7 +63,7 @@ public class AccountController {
     }
 
     /**
-     * Creates a new account with the given email and password.
+     * Creates a new account with the given account information
      *
      * @param account the Account object containing the email and password
      * @return a String indicating whether the account was created or not
@@ -108,6 +109,23 @@ public class AccountController {
             accountService.update(account);  
             return ResponseEntity.ok(new ApiResponse<>("Account updated"));
         } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+        }
+    }
+
+    /**
+     * Retrieves all depots owned by an account
+     *
+     * @param id the unique identifier of the account to retrieve depots for
+     * @return a list of all Depot objects owned by the account
+     */
+    @GetMapping("/{id}/depots")
+    public ResponseEntity<ApiResponse<List<Depot>>> accountDepots(@PathVariable Long id) {
+        logger.info("accountDepots");
+        try {
+            List<Depot> depots = accountService.accountDepots(id);
+            return ResponseEntity.ok(new ApiResponse<>("Depots retrieved", depots));
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
         }
     }

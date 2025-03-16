@@ -2,6 +2,9 @@ package com.info803.dependency_manager_api.application;
 
 import com.info803.dependency_manager_api.infrastructure.persistence.Account;
 import com.info803.dependency_manager_api.infrastructure.persistence.AccountRepository;
+import com.info803.dependency_manager_api.infrastructure.persistence.Depot;
+import com.info803.dependency_manager_api.infrastructure.persistence.DepotRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,18 +13,20 @@ import java.util.Optional;
 @Service
 public class AccountService {
 
-    private final AccountRepository repository;
+    private final AccountRepository accountRepository;
+    private final DepotRepository depotRepository;
 
-    public AccountService(AccountRepository repository) {
-        this.repository = repository;
+    public AccountService(AccountRepository accountRepository, DepotRepository depotRepository) {
+        this.accountRepository = accountRepository;
+        this.depotRepository = depotRepository;
     }
 
     public List<Account> accountList() {
-        return repository.findAll();
+        return accountRepository.findAll();
     }
 
     public Optional<Account> account(Long accountId) {
-        Optional<Account> account = repository.findById(accountId);
+        Optional<Account> account = accountRepository.findById(accountId);
         if (!account.isPresent()) {
             throw new IllegalArgumentException("Account not found");
         }
@@ -29,33 +34,37 @@ public class AccountService {
     }
 
     public void create(Account account) {
-        Optional<Account> acc = repository.findByMail(account.getMail());
-        if (acc.isPresent()) {
+        Optional<Account> tempAccount = accountRepository.findByMail(account.getMail());
+        if (tempAccount.isPresent()) {
             throw new IllegalArgumentException("Account already exists");
         }
-        repository.save(new Account(account.getMail(), account.getPassword()));
+        accountRepository.save(new Account(account.getMail(), account.getPassword()));
     }
 
     public void delete(Long accountId) {
-        Optional<Account> account = repository.findById(accountId);
+        Optional<Account> account = accountRepository.findById(accountId);
         if (!account.isPresent()) {
             throw new IllegalArgumentException("Account not found");
         }
-        repository.delete(account.get());
+        accountRepository.delete(account.get());
     }
 
     public void update(Account account) {
         // Retrieve the account from the database
-        Account existingAccount = repository.findById(account.getId())
+        Account existingAccount = accountRepository.findById(account.getId())
         .orElseThrow(() -> new IllegalArgumentException("Account not found"));
 
         // Check if the email is already in use by another account
-        Optional<Account> accountWithMail = repository.findByMail(account.getMail());
+        Optional<Account> accountWithMail = accountRepository.findByMail(account.getMail());
         if (accountWithMail.isPresent() && !accountWithMail.get().getId().equals(existingAccount.getId())) {
             throw new IllegalArgumentException("Email already in use");
         }
 
         // Update the account in the database
-        repository.save(account);
+        accountRepository.save(account);
+    }
+
+    public List<Depot> accountDepots(Long accountId) {
+        return depotRepository.findByAccountId(accountId);
     }
 }
