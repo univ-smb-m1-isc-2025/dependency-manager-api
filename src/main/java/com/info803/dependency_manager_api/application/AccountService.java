@@ -27,21 +27,21 @@ public class AccountService {
         }
         return account;
     }
-    
+
+    public void create(Account account) {
+        Optional<Account> acc = repository.findByMail(account.getMail());
+        if (acc.isPresent()) {
+            throw new IllegalArgumentException("Account already exists");
+        }
+        repository.save(new Account(account.getMail(), account.getPassword()));
+    }
+
     public void delete(Long accountId) {
         Optional<Account> account = repository.findById(accountId);
         if (!account.isPresent()) {
             throw new IllegalArgumentException("Account not found");
         }
         repository.delete(account.get());
-    }
-
-    public void create(String mail, String password) {
-        Optional<Account> account = repository.findByMail(mail);
-        if (account.isPresent()) {
-            throw new IllegalArgumentException("Account already exists");
-        }
-        repository.save(new Account(mail, password));
     }
 
     public void update(Account account) {

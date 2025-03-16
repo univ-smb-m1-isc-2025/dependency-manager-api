@@ -71,7 +71,7 @@ public class AccountController {
     public ResponseEntity<ApiResponse<String>> create(@RequestBody Account account) {
         logger.info("create"); 
         try {
-            accountService.create(account.getMail(), account.getPassword());  
+            accountService.create(account);  
             return ResponseEntity.ok(new ApiResponse<>("Account created"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
