@@ -85,7 +85,7 @@ public class DepotController {
      * @param id the unique identifier of the depot to delete
      * @return a String indicating whether the depot was deleted or not
      */
-    @GetMapping("/delete/{id}")
+    @GetMapping("/{id}/delete")
     public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) {
         logger.info("delete");
         try {

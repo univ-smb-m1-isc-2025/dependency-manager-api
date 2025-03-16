@@ -85,7 +85,7 @@ public class AccountController {
      * @param id the unique identifier of the account to delete
      * @return a String indicating whether the account was deleted or not
      */
-    @GetMapping("/delete/{id}")
+    @GetMapping("/{id}/delete")
     public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) {
         logger.info("delete"); 
         try { 
