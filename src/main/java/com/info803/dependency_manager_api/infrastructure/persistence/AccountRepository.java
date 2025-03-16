@@ -8,6 +8,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    Optional <Account> findByMail(String mail);
+    // Find 
     Optional<Account> findById(Long id);
+    Optional <Account> findByMail(String mail);
+
+    // Exists
+    boolean existsById(Long id);
+    boolean existsByMail(String mail);
 }
