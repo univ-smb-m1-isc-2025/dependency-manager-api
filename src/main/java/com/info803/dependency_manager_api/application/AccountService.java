@@ -43,4 +43,8 @@ public class AccountService {
         }
         repository.save(new Account(mail, password));
     }
+
+    public void update(Account account) {
+        repository.save(account);
+    }
 }

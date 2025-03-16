@@ -48,7 +48,7 @@ public class AccountController {
      * Retrieves a single account by its id.
      *
      * @param id the unique identifier of the account to retrieve
-     * @return an Optional containing the Account object corresponding to the given id, or an empty Optional if no such account exists
+     * @return the Account object with the given id
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Optional<Account>>> account(@PathVariable Long id) {
@@ -65,7 +65,7 @@ public class AccountController {
      * Creates a new account with the given email and password.
      *
      * @param account the Account object containing the email and password
-     * @return a String indicating whether the account was created or already exists
+     * @return a String indicating whether the account was created or not
      */
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<String>> create(@RequestBody Account account) {
@@ -90,6 +90,23 @@ public class AccountController {
         try { 
             accountService.delete(id);  
             return ResponseEntity.ok(new ApiResponse<>("Account deleted"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+        }
+    }
+
+    /**
+     * Updates an account
+     *
+     * @param ccount the Account object containing the email and password
+     * @return a String indicating whether the account was updated or not
+     */
+    @PostMapping("/update")
+    public ResponseEntity<ApiResponse<String>> update(@RequestBody Account account) {
+        logger.info("update"); 
+        try { 
+            accountService.update(account);  
+            return ResponseEntity.ok(new ApiResponse<>("Account updated"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
         }
