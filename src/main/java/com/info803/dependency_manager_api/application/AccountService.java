@@ -2,12 +2,10 @@ package com.info803.dependency_manager_api.application;
 
 import com.info803.dependency_manager_api.infrastructure.persistence.Account;
 import com.info803.dependency_manager_api.infrastructure.persistence.AccountRepository;
-
-import jakarta.persistence.EntityNotFoundException;
-
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AccountService {
@@ -22,20 +20,26 @@ public class AccountService {
         return repository.findAll();
     }
 
-    public Account account(Long accountId) {
-        return repository.findById(accountId).orElseThrow(() -> new IllegalArgumentException("Account not found"));
+    public Optional<Account> account(Long accountId) {
+        Optional<Account> account = repository.findById(accountId);
+        if (!account.isPresent()) {
+            throw new IllegalArgumentException("Account not found");
+        }
+        return account;
     }
     
     public void delete(Long accountId) {
-        if (!repository.existsById(accountId)) {
-            throw new EntityNotFoundException("Account not found");
+        Optional<Account> account = repository.findById(accountId);
+        if (!account.isPresent()) {
+            throw new IllegalArgumentException("Account not found");
         }
-        repository.deleteById(accountId);
+        repository.delete(account.get());
     }
 
     public void create(String mail, String password) {
-        if (repository.findByMail(mail).isPresent()) {
-            throw new IllegalStateException("Account already exists");
+        Optional<Account> account = repository.findByMail(mail);
+        if (account.isPresent()) {
+            throw new IllegalArgumentException("Account already exists");
         }
         repository.save(new Account(mail, password));
     }
