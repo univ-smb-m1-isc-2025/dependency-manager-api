@@ -107,7 +107,7 @@ public class AccountController {
         try { 
             accountService.update(account);  
             return ResponseEntity.ok(new ApiResponse<>("Account updated"));
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
         }
     }
