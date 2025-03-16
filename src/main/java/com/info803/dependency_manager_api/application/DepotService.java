@@ -1,5 +1,7 @@
 package com.info803.dependency_manager_api.application;
 
+import com.info803.dependency_manager_api.infrastructure.persistence.Account;
+import com.info803.dependency_manager_api.infrastructure.persistence.AccountRepository;
 import com.info803.dependency_manager_api.infrastructure.persistence.Depot;
 import com.info803.dependency_manager_api.infrastructure.persistence.DepotRepository;
 import org.springframework.stereotype.Service;
@@ -9,18 +11,20 @@ import java.util.Optional;
 
 @Service
 public class DepotService {
-    private final DepotRepository repository;
+    private final DepotRepository depotRepository;
+    private final AccountRepository accountRepository;
 
-    public DepotService(DepotRepository repository) {
-        this.repository = repository;
+    public DepotService(DepotRepository depotRepository, AccountRepository accountRepository) {
+        this.depotRepository = depotRepository;
+        this.accountRepository = accountRepository;
     }
 
     public List<Depot> depotList() {
-        return repository.findAll();
+        return depotRepository.findAll();
     }
 
     public Optional<Depot> depot(Long id) {
-        Optional<Depot> depot = repository.findById(id);
+        Optional<Depot> depot = depotRepository.findById(id);
         if (!depot.isPresent()) {
             throw new IllegalArgumentException("Depot not found");
         }
@@ -28,15 +32,19 @@ public class DepotService {
     }
 
     public void create(Depot depot) {
-        repository.save(depot);
+        Optional<Account> account = accountRepository.findById(depot.getAccountId());
+        if (!account.isPresent()) {
+            throw new IllegalArgumentException("Account not found");
+        }
+        depotRepository.save(depot);
     }
 
     public void delete(Long id) {
-        Optional<Depot> depot = repository.findById(id);
+        Optional<Depot> depot = depotRepository.findById(id);
         if (!depot.isPresent()) {
             throw new IllegalArgumentException("Depot not found");
         }
-        repository.deleteById(id);
+        depotRepository.deleteById(id);
     }
 
     public void update(Depot depot) {
