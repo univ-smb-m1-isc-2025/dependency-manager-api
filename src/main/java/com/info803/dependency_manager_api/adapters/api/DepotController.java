@@ -113,11 +113,48 @@ public class DepotController {
         }
     }
 
+    /**
+     * Clones a depot by its id into a new directory
+     * @param id the unique identifier of the depot to clone
+     * @return a String indicating whether the depot was cloned or not
+     */
     @GetMapping("/{id}/clone")
     public ResponseEntity<ApiResponse<String>> gitClone(@PathVariable Long id) {
         logger.info("clone");
         try {
             String msg = depotService.gitClone(id);
+            return ResponseEntity.ok(new ApiResponse<>(msg));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+        }
+    }
+
+    /**
+     * Pulls a depot by its id
+     * @param id the unique identifier of the depot to pull
+     * @return a String indicating whether the depot was pulled or not
+     */
+    @GetMapping("/{id}/pull")
+    public ResponseEntity<ApiResponse<String>> gitPull(@PathVariable Long id) {
+        logger.info("pull");
+        try {
+            String msg = depotService.gitPull(id);
+            return ResponseEntity.ok(new ApiResponse<>(msg));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+        }
+    }
+
+    /**
+     * Display the code of a depot
+     * @param id the unique identifier of the depot to display
+     * @return a String indicating whether the depot was displayed or not
+     */
+    @GetMapping("/{id}/code")
+    public ResponseEntity<ApiResponse<String>> gitCode(@PathVariable Long id) {
+        logger.info("code");
+        try {
+            String msg = depotService.gitCode(id);
             return ResponseEntity.ok(new ApiResponse<>(msg));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));

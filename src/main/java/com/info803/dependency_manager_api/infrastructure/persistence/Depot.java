@@ -10,7 +10,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
-import java.io.IOException;
 
 @Entity
 public class Depot {
@@ -78,11 +77,45 @@ public class Depot {
             Git.cloneRepository()
                 .setURI(url)
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
-                .setDirectory(new File("depots/" + name))
+                .setDirectory(new File("depots/" + id))
                 .call();
-            return "Depot cloned successfully to depots/" + name;
+            return "Depot cloned successfully to depots/" + id;
         } catch (Exception e) {
             return "Error cloning depot: " + e.getMessage();
+        }
+    }
+
+    public String gitPull() {
+        try (Git git = Git.open(new File("depots/" + id))) {
+            git.pull().call();
+            return "Depot pulled successfully to depots/" + id;
+        } catch (Exception e) {
+            return "Error pulling depot: " + e.getMessage();
+        }
+    }
+    
+    public String gitCode() {
+        try {
+            File repoDirectory = new File("depots/" + id);
+
+            if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
+                return "The repository directory does not exist or is invalid.";
+            }
+
+            // Liste tous les fichiers dans le répertoire cloné
+            File[] files = repoDirectory.listFiles();
+            if (files == null || files.length == 0) {
+                return "No files found in the cloned repository.";
+            }
+
+            StringBuilder fileNames = new StringBuilder("Files in the cloned repository:\n");
+            for (File file : files) {
+                fileNames.append(file.getName()).append("\n");
+            }
+
+            return fileNames.toString();
+        } catch (Exception e) {
+            return "Error accessing files in the repository: " + e.getMessage();
         }
     }
 }

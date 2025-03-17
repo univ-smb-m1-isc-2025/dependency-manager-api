@@ -59,4 +59,20 @@ public class DepotService {
         return depot.get().gitClone();
     }
 
+    public String gitPull(Long id) {
+        Optional<Depot> depot = depotRepository.findById(id);
+        if (!depot.isPresent()) {
+            throw new IllegalArgumentException("Depot not found");
+        }
+        return depot.get().gitPull();
+    }
+
+    public String gitCode(Long id) {
+        Optional<Depot> depot = depotRepository.findById(id);
+        if (!depot.isPresent()) {
+            throw new IllegalArgumentException("Depot not found");
+        }
+        return depot.get().gitCode();
+    }
+
 }
