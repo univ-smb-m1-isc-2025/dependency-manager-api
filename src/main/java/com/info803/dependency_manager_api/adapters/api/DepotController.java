@@ -13,11 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
+import java.io.File;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
-
-
 
 @RestController
 @RequestMapping("/api/depots")
@@ -151,11 +149,11 @@ public class DepotController {
      * @return a String indicating whether the depot was displayed or not
      */
     @GetMapping("/{id}/code")
-    public ResponseEntity<ApiResponse<String>> gitCode(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<File[]>> gitCode(@PathVariable Long id) {
         logger.info("code");
         try {
-            String msg = depotService.gitCode(id);
-            return ResponseEntity.ok(new ApiResponse<>(msg));
+            File[] files = depotService.gitCode(id);
+            return ResponseEntity.ok(new ApiResponse<>("Code displayed", files));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
         }

@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 // Git import
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
@@ -94,28 +95,17 @@ public class Depot {
         }
     }
     
-    public String gitCode() {
+    public File[] gitCode() {
         try {
             File repoDirectory = new File("depots/" + id);
 
             if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
-                return "The repository directory does not exist or is invalid.";
+                throw new RepositoryNotFoundException("Cloned repository not found.");
             }
-
             // Liste tous les fichiers dans le répertoire cloné
-            File[] files = repoDirectory.listFiles();
-            if (files == null || files.length == 0) {
-                return "No files found in the cloned repository.";
-            }
-
-            StringBuilder fileNames = new StringBuilder("Files in the cloned repository:\n");
-            for (File file : files) {
-                fileNames.append(file.getName()).append("\n");
-            }
-
-            return fileNames.toString();
+            return repoDirectory.listFiles();
         } catch (Exception e) {
-            return "Error accessing files in the repository: " + e.getMessage();
+            throw new RuntimeException(e);
         }
     }
 }

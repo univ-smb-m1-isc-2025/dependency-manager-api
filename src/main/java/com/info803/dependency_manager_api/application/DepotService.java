@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.io.File;
 
 @Service
 public class DepotService {
@@ -67,12 +68,12 @@ public class DepotService {
         return depot.get().gitPull();
     }
 
-    public String gitCode(Long id) {
-        Optional<Depot> depot = depotRepository.findById(id);
-        if (!depot.isPresent()) {
-            throw new IllegalArgumentException("Depot not found");
-        }
-        return depot.get().gitCode();
+    public File[] gitCode(Long id) {
+        return depotRepository.findById(id)
+                .map(Depot::gitCode)
+                .orElseThrow(() -> {
+                    return new IllegalArgumentException("Error retrieving code");
+                });
     }
 
 }
