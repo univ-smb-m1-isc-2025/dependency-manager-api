@@ -130,9 +130,8 @@ public class Depot {
             for (File file : files) {
                 if (file.isDirectory()) {
                     deleteDirectory(file);
-                } else {
-                    file.delete();
-                } 
+                }
+                file.delete(); 
             }
         }
     }
