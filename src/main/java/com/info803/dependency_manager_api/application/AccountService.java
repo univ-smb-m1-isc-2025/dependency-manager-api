@@ -79,7 +79,7 @@ public class AccountService {
             throw new IllegalArgumentException("Account not found with mail : " + mail);
         }
         // Check if the account is verified
-        if (account.get().getMailVerifiedAt() == null) {
+        if (account.get().getVerifiedAt() == null) {
             throw new IllegalArgumentException("Account not verified");
         }
         // Check if the password is correct

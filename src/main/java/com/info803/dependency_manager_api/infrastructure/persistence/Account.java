@@ -20,7 +20,7 @@ public class Account {
     private String mail;
 
     private String createdAt;
-    private String mailVerifiedAt;
+    private String verifiedAt;
     @JsonIgnore
     private String password;
 
@@ -34,7 +34,7 @@ public class Account {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();
         this.createdAt = dateFormat.format(date);
-        this.mailVerifiedAt = null;
+        this.verifiedAt = null;
     }
 
     // Getters
@@ -50,8 +50,8 @@ public class Account {
         return createdAt;
     }
 
-    public String getMailVerifiedAt() {
-        return mailVerifiedAt;
+    public String getVerifiedAt() {
+        return verifiedAt;
     }
 
     public Long getId() {
@@ -71,7 +71,7 @@ public class Account {
         this.createdAt = createdAt;
     }
 
-    public void setMailVerifiedAt(String mailVerifiedAt) {
-        this.mailVerifiedAt = mailVerifiedAt;
+    public void setVerifiedAt(String verifiedAt) {
+        this.verifiedAt = verifiedAt;
     }
 }
