@@ -117,6 +117,7 @@ public class Depot {
                 throw new RepositoryNotFoundException("Cloned repository not found.");
             }
             deleteDirectory(repoDirectory);
+            repoDirectory.delete();
             return "Depot deleted successfully";
         } catch (Exception e) {
             return "Error deleting depot: " + e.getMessage();
