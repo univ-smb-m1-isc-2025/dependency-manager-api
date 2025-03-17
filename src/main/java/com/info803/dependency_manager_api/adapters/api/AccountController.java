@@ -86,10 +86,10 @@ public class AccountController {
      * @return a boolean indicating whether the account was connected or not
      */
     @PostMapping("/connect")
-    public ResponseEntity<ApiResponse<Boolean>> connect(@RequestBody String mail, String password) {
+    public ResponseEntity<ApiResponse<Boolean>> connect(@RequestBody Account account) {
         logger.info("connect"); 
         try {
-            boolean connected = accountService.connect(mail, password);  
+            boolean connected = accountService.connect(account.getMail(), account.getPassword());  
             return ResponseEntity.ok(new ApiResponse<>("Connected", connected));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
