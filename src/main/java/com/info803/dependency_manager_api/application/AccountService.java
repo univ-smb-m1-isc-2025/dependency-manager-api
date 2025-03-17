@@ -71,4 +71,18 @@ public class AccountService {
         }
         return depotRepository.findByAccountId(accountId);
     }
+
+    public boolean connect(String mail, String password) {
+        Optional<Account> account = accountRepository.findByMail(mail);
+        // Check if the account exists
+        if (!account.isPresent()) {
+            throw new IllegalArgumentException("Account not found");
+        }
+        // Check if the account is verified
+        if (account.get().getMailVerifiedAt() == null) {
+            throw new IllegalArgumentException("Account not verified");
+        }
+        // Check if the password is correct
+        return account.get().getPassword().equals(password);
+    }
 }

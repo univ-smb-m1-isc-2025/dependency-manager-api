@@ -80,6 +80,23 @@ public class AccountController {
     }
 
     /**
+     * Connects to an account with the given email and password
+     * @param mail the email of the account to connect to
+     * @param password the password of the account to connect to
+     * @return a boolean indicating whether the account was connected or not
+     */
+    @PostMapping("/connect")
+    public ResponseEntity<ApiResponse<Boolean>> connect(@RequestBody String mail, String password) {
+        logger.info("connect"); 
+        try {
+            boolean connected = accountService.connect(mail, password);  
+            return ResponseEntity.ok(new ApiResponse<>("Connected", connected));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+        }
+    }
+
+    /**
      * Deletes an account by its id.
      *
      * @param id the unique identifier of the account to delete
