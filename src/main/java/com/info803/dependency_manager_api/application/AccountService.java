@@ -83,6 +83,10 @@ public class AccountService {
             throw new IllegalArgumentException("Account not verified");
         }
         // Check if the password is correct
-        return account.get().getPassword().equals(password);
+        try {
+            return account.get().getPassword().equals(password);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error while comparing password : " + e.getMessage());
+        }
     }
 }
