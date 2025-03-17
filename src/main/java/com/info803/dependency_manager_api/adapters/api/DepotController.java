@@ -158,4 +158,20 @@ public class DepotController {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
         }
     }
+
+    /**
+     * Deletes the code of a depot
+     * @param id the unique identifier of the depot to delete
+     * @return a String indicating whether the code was deleted or not
+     */
+    @GetMapping("/{id}/code/delete")
+    public ResponseEntity<ApiResponse<String>> gitCodeDelete(@PathVariable Long id) {
+        logger.info("codeDelete");
+        try {
+            String msg = depotService.gitDelete(id);
+            return ResponseEntity.ok(new ApiResponse<>(msg));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+        }
+    }
 }

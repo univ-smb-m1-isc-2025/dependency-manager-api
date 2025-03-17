@@ -108,4 +108,19 @@ public class Depot {
             throw new RuntimeException(e);
         }
     }
+
+    public String gitDelete() {
+        try {
+            // Supprime le répertoire cloné
+            File repoDirectory = new File("depots/" + id);
+            if (repoDirectory.exists() && repoDirectory.isDirectory()) {
+                repoDirectory.delete();
+                return "Depot deleted successfully from depots/" + id;
+            } else {
+                return "Depot not found in depots/" + id;
+            }
+        } catch (Exception e) {
+            return "Error deleting depot: " + e.getMessage();
+        }
+    }
 }

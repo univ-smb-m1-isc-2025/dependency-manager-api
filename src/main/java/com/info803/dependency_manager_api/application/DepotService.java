@@ -81,4 +81,16 @@ public class DepotService {
         
     }
 
+    public String gitDelete(Long id) {
+        Optional<Depot> depot = depotRepository.findById(id);
+        if (!depot.isPresent()) {
+            throw new IllegalArgumentException("Depot not found");
+        }
+        try { 
+            return depot.get().gitDelete();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
 }
