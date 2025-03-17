@@ -76,7 +76,7 @@ public class AccountService {
         Optional<Account> account = accountRepository.findByMail(mail);
         // Check if the account exists
         if (!account.isPresent()) {
-            throw new IllegalArgumentException("Account not found");
+            throw new IllegalArgumentException("Account not found with mail : " + mail);
         }
         // Check if the account is verified
         if (account.get().getMailVerifiedAt() == null) {
