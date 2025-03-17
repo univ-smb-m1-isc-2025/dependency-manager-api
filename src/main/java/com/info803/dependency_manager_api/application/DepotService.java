@@ -69,11 +69,16 @@ public class DepotService {
     }
 
     public File[] gitCode(Long id) {
-        return depotRepository.findById(id)
-                .map(Depot::gitCode)
-                .orElseThrow(() -> {
-                    return new IllegalArgumentException("Error retrieving code");
-                });
+        Optional<Depot> depot = depotRepository.findById(id);
+        if (!depot.isPresent()) {
+            throw new IllegalArgumentException("Depot not found");
+        }
+        try {
+            return depot.get().gitCode();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+        
     }
 
 }
