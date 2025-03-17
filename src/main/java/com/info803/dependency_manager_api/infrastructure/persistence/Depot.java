@@ -116,7 +116,7 @@ public class Depot {
             if (!repoDirectory.exists() && !repoDirectory.isDirectory()) {
                 throw new RepositoryNotFoundException("Cloned repository not found.");
             }
-            deleteDirectory(repoDirectory);
+            deleteDirectoryContent(repoDirectory);
             repoDirectory.delete();
             return "Depot deleted successfully";
         } catch (Exception e) {
@@ -124,13 +124,13 @@ public class Depot {
         }
     }
 
-    private void deleteDirectory(File directory) {
+    private void deleteDirectoryContent(File directory) {
         // Recursively delete all files and subdirectories in the directory
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
-                    deleteDirectory(file);
+                    deleteDirectoryContent(file);
                 }
                 file.delete(); 
             }
