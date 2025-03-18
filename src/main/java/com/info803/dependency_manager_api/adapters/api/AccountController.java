@@ -90,7 +90,7 @@ public class AccountController {
         logger.info("connect"); 
         try {
             boolean connected = accountService.connect(account.getMail(), account.getPassword());  
-            return ResponseEntity.ok(new ApiResponse<>("Connected", connected));
+            return ResponseEntity.ok(new ApiResponse<>("isConnected", connected));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
         }

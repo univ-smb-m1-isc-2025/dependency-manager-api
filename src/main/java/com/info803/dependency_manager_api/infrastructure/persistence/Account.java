@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.lang.reflect.Field;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -76,4 +77,26 @@ public class Account {
     public void setVerifiedAt(String verifiedAt) {
         this.verifiedAt = verifiedAt;
     }
+
+    // Methods
+    public void updateFrom(Account account) {
+        if (account == null) {
+            throw new IllegalArgumentException("L'account fourni ne peut pas être null !");
+        }
+
+        Class<?> clazz = this.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+
+            try {
+                Object newValue = field.get(account);
+                if (newValue != null && !java.lang.reflect.Modifier.isFinal(field.getModifiers())) {
+                    field.set(this, newValue);
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Erreur lors de l'accès au champ : " + field.getName(), e);
+            }
+        }
+    }
+
 }

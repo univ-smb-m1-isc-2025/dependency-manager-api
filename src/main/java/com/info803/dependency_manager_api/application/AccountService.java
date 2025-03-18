@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
 public class AccountService {
 
@@ -59,9 +60,8 @@ public class AccountService {
         if (accountWithMail.isPresent() && !accountWithMail.get().getId().equals(existingAccount.getId())) {
             throw new IllegalArgumentException("Email already in use");
         }
-
-        // Update the account in the database
-        accountRepository.save(account);
+        existingAccount.updateFrom(account);
+        accountRepository.save(existingAccount);
     }
 
     public List<Depot> accountDepots(Long accountId) {
