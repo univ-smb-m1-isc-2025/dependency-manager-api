@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 public class Account {
@@ -42,6 +43,7 @@ public class Account {
         return mail;
     }
 
+    @JsonProperty
     public String getPassword() {
         return password;
     }
@@ -73,10 +75,5 @@ public class Account {
 
     public void setVerifiedAt(String verifiedAt) {
         this.verifiedAt = verifiedAt;
-    }
-
-    // Methods
-    public boolean comparePassword(String password) throws Exception {
-        return this.password.equals(password);
     }
 }
