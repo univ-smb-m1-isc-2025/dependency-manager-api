@@ -2,11 +2,8 @@ package com.info803.dependency_manager_api.infrastructure.persistence;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.lang.reflect.Field;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -1,17 +1,13 @@
 package com.info803.dependency_manager_api.infrastructure.persistence;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 
 // Git import
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
-import java.lang.reflect.Field;
 
 @Entity
 public class Depot extends BddEntity{
