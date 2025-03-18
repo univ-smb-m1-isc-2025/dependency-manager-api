@@ -89,9 +89,8 @@ public class Account {
             field.setAccessible(true);
 
             try {
-                Object newValue = field.get(account);
-                if (newValue != null && !java.lang.reflect.Modifier.isFinal(field.getModifiers())) {
-                    field.set(this, newValue);
+                if (!java.lang.reflect.Modifier.isFinal(field.getModifiers())) {
+                    field.set(this, field.get(account));
                 }
             } catch (IllegalAccessException e) {
                 throw new RuntimeException("Error accessing field : " + field.getName(), e);
