@@ -12,12 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
-public class Account {
-
-    @Id
-    @GeneratedValue
-    private Long id;
-
+public class Account extends BddEntity {
     @Column(unique = true)
     private String mail;
 
@@ -57,10 +52,6 @@ public class Account {
         return verifiedAt;
     }
 
-    public Long getId() {
-        return id;
-    }
-
     // Setters
     public void setMail(String mail) {
         this.mail = mail;
@@ -76,25 +67,5 @@ public class Account {
 
     public void setVerifiedAt(String verifiedAt) {
         this.verifiedAt = verifiedAt;
-    }
-
-    // Methods
-    public void updateFrom(Account account) {
-        if (account == null) {
-            throw new IllegalArgumentException("Account is null");
-        }
-
-        Class<?> clazz = this.getClass();
-        for (Field field : clazz.getDeclaredFields()) {
-            field.setAccessible(true);
-
-            try {
-                if (!java.lang.reflect.Modifier.isFinal(field.getModifiers())) {
-                    field.set(this, field.get(account));
-                }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error accessing field : " + field.getName(), e);
-            }
-        }
     }
 }

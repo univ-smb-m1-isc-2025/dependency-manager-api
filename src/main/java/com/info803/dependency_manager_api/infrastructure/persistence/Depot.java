@@ -14,11 +14,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 
 @Entity
-public class Depot {
-    @Id
-    @GeneratedValue
-    private Long id;
-
+public class Depot extends BddEntity{
     private String name;
     private String url;
     private String token;
@@ -35,10 +31,6 @@ public class Depot {
     }
 
     // Getters
-    public Long getId() {
-        return id;
-    }
-
     public String getName() {
         return name;
     }
@@ -134,26 +126,6 @@ public class Depot {
                     deleteDirectoryContent(file);
                 }
                 file.delete(); 
-            }
-        }
-    }
-
-    public void updateFrom(Depot depot) {
-        if (depot == null) {
-            throw new IllegalArgumentException("Depot is null");
-        }
-
-        Class<?> clazz = this.getClass();
-        for (Field field : clazz.getDeclaredFields()) {
-            field.setAccessible(true);
-
-            try {
-                Object newValue = field.get(depot);
-                if (newValue != null && !java.lang.reflect.Modifier.isFinal(field.getModifiers())) {
-                    field.set(this, newValue);
-                }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error accessing field : " + field.getName(), e);
             }
         }
     }
