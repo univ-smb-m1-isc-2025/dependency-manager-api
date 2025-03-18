@@ -84,7 +84,7 @@ public class AccountService {
         }
         // Check if the password is correct
         try {
-            return account.get().getPassword().equals(password);
+            return account.get().comparePassword(password);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while comparing password : " + e.getMessage());
         }
