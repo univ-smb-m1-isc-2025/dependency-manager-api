@@ -11,6 +11,7 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
+import java.lang.reflect.Field;
 
 @Entity
 public class Depot {
@@ -133,6 +134,26 @@ public class Depot {
                     deleteDirectoryContent(file);
                 }
                 file.delete(); 
+            }
+        }
+    }
+
+    public void updateFrom(Depot depot) {
+        if (depot == null) {
+            throw new IllegalArgumentException("Depot is null");
+        }
+
+        Class<?> clazz = this.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+
+            try {
+                Object newValue = field.get(depot);
+                if (newValue != null && !java.lang.reflect.Modifier.isFinal(field.getModifiers())) {
+                    field.set(this, newValue);
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Error accessing field : " + field.getName(), e);
             }
         }
     }
