@@ -2,9 +2,11 @@ package com.info803.dependency_manager_api.infrastructure.persistence;
 
 import java.lang.reflect.Field;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
+@Entity
 abstract class BddEntity {
 
     // Attributes
