@@ -81,7 +81,7 @@ public class Account {
     // Methods
     public void updateFrom(Account account) {
         if (account == null) {
-            throw new IllegalArgumentException("L'account fourni ne peut pas être null !");
+            throw new IllegalArgumentException("Account is null");
         }
 
         Class<?> clazz = this.getClass();
@@ -94,9 +94,8 @@ public class Account {
                     field.set(this, newValue);
                 }
             } catch (IllegalAccessException e) {
-                throw new RuntimeException("Erreur lors de l'accès au champ : " + field.getName(), e);
+                throw new RuntimeException("Error accessing field : " + field.getName(), e);
             }
         }
     }
-
 }
