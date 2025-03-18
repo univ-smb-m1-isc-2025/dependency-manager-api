@@ -2,6 +2,9 @@ package com.info803.dependency_manager_api.infrastructure.persistence;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -10,6 +13,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 public class Account extends BddEntity {
+
+    @Id
+    @GeneratedValue
+    protected Long id;
+
     @Column(unique = true)
     private String mail;
 
@@ -32,6 +40,10 @@ public class Account extends BddEntity {
     }
 
     // Getters
+    public Long getId() {
+        return id;
+    }
+
     public String getMail() {
         return mail;
     }
@@ -50,6 +62,10 @@ public class Account extends BddEntity {
     }
 
     // Setters
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setMail(String mail) {
         this.mail = mail;
     }

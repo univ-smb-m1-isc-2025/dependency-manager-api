@@ -1,6 +1,8 @@
 package com.info803.dependency_manager_api.infrastructure.persistence;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 
 // Git import
 import org.eclipse.jgit.api.Git;
@@ -11,6 +13,12 @@ import java.io.File;
 
 @Entity
 public class Depot extends BddEntity{
+    
+    // Attributes
+    @Id
+    @GeneratedValue
+    protected Long id;
+
     private String name;
     private String url;
     private String token;
@@ -27,6 +35,10 @@ public class Depot extends BddEntity{
     }
 
     // Getters
+    public Long getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
@@ -44,6 +56,10 @@ public class Depot extends BddEntity{
     }
 
     // Setters
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
