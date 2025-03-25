@@ -6,10 +6,10 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
-import jakarta.annotation.Generated;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 
 @Entity
 public class Code extends BddEntity {
@@ -71,6 +71,7 @@ public class Code extends BddEntity {
         }
     }
     
+    @Transient
     public File[] gitCode() {
         try {
             File repoDirectory = new File("depots/" + depotId);
