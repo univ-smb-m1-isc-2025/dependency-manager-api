@@ -72,7 +72,7 @@ public class DepotService {
         return depot.get().gitPull();
     }
 
-    public File[] gitCode(Long id) {
+    public List<File> gitCode(Long id) {
         Optional<Depot> depot = depotRepository.findById(id);
         if (!depot.isPresent()) {
             throw new IllegalArgumentException("Depot not found");

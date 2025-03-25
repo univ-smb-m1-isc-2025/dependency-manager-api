@@ -13,6 +13,8 @@ import com.info803.dependency_manager_api.infrastructure.utils.BddEntity;
 import com.info803.dependency_manager_api.infrastructure.utils.Technology;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Depot extends BddEntity{
@@ -124,7 +126,7 @@ public class Depot extends BddEntity{
      * @throws RepositoryNotFoundException if the cloned repository does not exist
      * @throws RuntimeException if any other error occurs
      */
-    public File[] gitCode() throws RepositoryNotFoundException {
+    public List<File> gitCode() throws RepositoryNotFoundException {
         if (getPath() == null) {
             throw new RepositoryNotFoundException("Git code : Path is null");
         }
@@ -135,7 +137,7 @@ public class Depot extends BddEntity{
                 throw new RepositoryNotFoundException("Cloned repository not found.");
             }
             // Liste tous les fichiers dans le répertoire cloné
-            return repoDirectory.listFiles();
+            return listDirectoryFiles(repoDirectory);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -210,5 +212,26 @@ public class Depot extends BddEntity{
                 file.delete(); 
             }
         }
+    }
+
+    private List<File> listDirectoryFiles(File directory) {
+        List<File> fileList = new ArrayList<>();
+        
+        // Vérifie si le répertoire existe et est un répertoire
+        if (directory != null && directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        // Appel récursif pour les sous-répertoires
+                        fileList.addAll(listDirectoryFiles(file));
+                    } else {
+                        // Ajouter les fichiers au résultat
+                        fileList.add(file);
+                    }
+                }
+            }
+        }
+        return fileList;
     }
 }

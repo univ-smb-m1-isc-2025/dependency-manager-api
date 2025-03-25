@@ -151,10 +151,10 @@ public class DepotController {
      * @return a String indicating whether the depot was displayed or not
      */
     @GetMapping("/{id}/code")
-    public ResponseEntity<ApiResponse<File[]>> gitCode(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<List<File>>> gitCode(@PathVariable Long id) {
         logger.info("code");
         try {
-            File[] files = depotService.gitCode(id);
+            List<File> files = depotService.gitCode(id);
             return ResponseEntity.ok(new ApiResponse<>("Code displayed", files));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
