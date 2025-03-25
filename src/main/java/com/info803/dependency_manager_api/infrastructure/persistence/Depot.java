@@ -3,7 +3,6 @@ package com.info803.dependency_manager_api.infrastructure.persistence;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.PostPersist;
 
 // Git import
 import org.eclipse.jgit.api.Git;
@@ -184,7 +183,7 @@ public class Depot extends BddEntity{
             if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
                 throw new RepositoryNotFoundException("Cloned repository not found.");
             }
-            return Technology.detectTechnology(getPath()).toString();
+            return Technology.detectTechnologies(getPath()).toString();
         } catch (Exception e) {
             return "Error detecting technology: " + e.getMessage();
         }

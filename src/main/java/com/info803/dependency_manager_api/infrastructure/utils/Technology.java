@@ -2,7 +2,9 @@ package com.info803.dependency_manager_api.infrastructure.utils;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Technology {
 
@@ -11,25 +13,25 @@ public class Technology {
     }
 
     /**
-     * Détecte la technologie utilisée dans un répertoire donné.
+     * Détecte les technologies utilisées dans un répertoire donné.
      * @param repoPath Chemin du répertoire du projet
-     * @return Le type de technologie détecté
+     * @return Les technologies utilisées dans le répertoire
     */
-    public static TechnologyType detectTechnology(String repoPath) {
+    public static List<TechnologyType> detectTechnologies(String repoPath) {
         File repoDirectory = new File(repoPath);
         if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
-            return TechnologyType.UNKNOWN;
+            return Collections.emptyList();
         }
 
         File[] filesInRepo = repoDirectory.listFiles();
-        if (filesInRepo == null) return TechnologyType.UNKNOWN;
+        if (filesInRepo == null) return Collections.emptyList();
 
-        // Vérifier chaque type de technologie en fonction des fichiers caractéristiques
-        Optional<TechnologyType> detectedType = Arrays.stream(TechnologyType.values())
+        // Liste des technologies détectées
+        List<TechnologyType> detectedTechnologies = Arrays.stream(TechnologyType.values())
                 .filter(tech -> Arrays.stream(tech.getFiles())
                         .anyMatch(fileName -> new File(repoDirectory, fileName).exists()))
-                .findFirst();
+                .collect(Collectors.toList());
 
-        return detectedType.orElse(TechnologyType.UNKNOWN);
+        return detectedTechnologies;
     }
 }
