@@ -16,7 +16,7 @@ public class Account extends BddEntity {
 
     @Id
     @GeneratedValue
-    protected Long id;
+    private Long id;
 
     @Column(unique = true)
     private String mail;
