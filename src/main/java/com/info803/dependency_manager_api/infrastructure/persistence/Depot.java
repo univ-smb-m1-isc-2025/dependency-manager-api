@@ -4,11 +4,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
-// Git import
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-
 import java.io.File;
 
 @Entity
@@ -17,12 +12,13 @@ public class Depot extends BddEntity{
     // Attributes
     @Id
     @GeneratedValue
-    protected Long id;
+    private Long id;
 
     private String name;
     private String url;
     private String token;
     private Long accountId;
+    private Code code;
 
     // Constructors
     public Depot() {}
@@ -32,6 +28,7 @@ public class Depot extends BddEntity{
         this.url = url;
         this.token = token;
         this.accountId = accountId;
+        this.code = new Code();
     }
 
     // Getters
@@ -55,6 +52,10 @@ public class Depot extends BddEntity{
         return accountId;
     }
 
+    public Code getCode() {
+        return code;
+    }
+
     // Setters
     public void setId(Long id) {
         this.id = id;
@@ -76,69 +77,28 @@ public class Depot extends BddEntity{
         this.accountId = accountId;
     }
 
+    public void setCode(Code code) {
+        this.code = code;
+    }
+
     // Methods
     public String gitClone() {
-        try {
-            // Clone the repository
-            Git.cloneRepository()
-                .setURI(url)
-                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
-                .setDirectory(new File("depots/" + id))
-                .call();
-            return "Depot cloned successfully to depots/" + id;
-        } catch (Exception e) {
-            return "Error cloning depot: " + e.getMessage();
-        }
+        return code.gitClone(url, token);
     }
 
     public String gitPull() {
-        try (Git git = Git.open(new File("depots/" + id))) {
-            git.pull().call();
-            return "Depot pulled successfully to depots/" + id;
-        } catch (Exception e) {
-            return "Error pulling depot: " + e.getMessage();
-        }
+        return code.gitPull();
     }
-    
-    public File[] gitCode() {
-        try {
-            File repoDirectory = new File("depots/" + id);
 
-            if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
-                throw new RepositoryNotFoundException("Cloned repository not found.");
-            }
-            // Liste tous les fichiers dans le répertoire cloné
-            return repoDirectory.listFiles();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public File[] gitCode() {
+        return code.gitCode();
     }
 
     public String gitDelete() {
-        try {
-            // Supprime le répertoire cloné
-            File repoDirectory = new File("depots/" + id);
-            if (!repoDirectory.exists() && !repoDirectory.isDirectory()) {
-                throw new RepositoryNotFoundException("Cloned repository not found.");
-            }
-            deleteDirectoryContent(repoDirectory);
-            repoDirectory.delete();
-            return "Depot deleted successfully";
-        } catch (Exception e) {
-            return "Error deleting depot: " + e.getMessage();
-        }
+        return code.gitDelete();
     }
 
-    private void deleteDirectoryContent(File directory) {
-        // Recursively delete all files and subdirectories in the directory
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    deleteDirectoryContent(file);
-                }
-                file.delete(); 
-            }
-        }
+    public String listDependecies() {
+        return code.listDependecies();
     }
 }
