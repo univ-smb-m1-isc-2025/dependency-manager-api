@@ -117,6 +117,9 @@ public class Depot extends BddEntity{
      * @return a String indicating whether the depot was pulled or not
      */
     public String gitPull() {
+        if (path == null) {
+            return "Error pulling depot: depot code path is null";
+        }
         try (Git git = Git.open(new File(path))) {
             git.pull().call();
             return "Depot pulled successfully to " + path;
@@ -131,7 +134,11 @@ public class Depot extends BddEntity{
      * @throws RepositoryNotFoundException if the cloned repository does not exist
      * @throws RuntimeException if any other error occurs
      */
-    public File[] gitCode() {
+    public File[] gitCode() throws RepositoryNotFoundException {
+        if (path == null) {
+            throw new RepositoryNotFoundException("Git code : Path is null");
+        }
+
         try {
             File repoDirectory = new File(path);
 
@@ -141,7 +148,7 @@ public class Depot extends BddEntity{
             // Liste tous les fichiers dans le répertoire cloné
             return repoDirectory.listFiles();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -152,6 +159,10 @@ public class Depot extends BddEntity{
      * @throws RuntimeException if any other error occurs
      */
     public String gitDelete() {
+        if (path == null) {
+            return "Error deleting depot code: depot code path is null";
+        }
+
         try {
             // Supprime le répertoire cloné
             File repoDirectory = new File(path);
@@ -173,6 +184,10 @@ public class Depot extends BddEntity{
      */
 
     public String gitCodeTechnology() {
+        if (path == null) {
+            return "Error getting depot code technology: depot code path is null";
+        }
+
         try {
             // Détecte la technologie utilisée dans le répertoire cloné
             File repoDirectory = new File(path);
