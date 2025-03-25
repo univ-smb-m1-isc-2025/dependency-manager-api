@@ -28,7 +28,11 @@ class Initializer {
         if (depotRepository.findAll().isEmpty()) {
             // Get the first account
             Long accountId = accountRepository.findAll().get(0).getId();
-            depotRepository.save(new Depot("Clement test", "https://github.com/Oziphos/test.git", "token", accountId));
+            // Github public repo
+            depotRepository.save(new Depot("Clement test GH", "https://github.com/Oziphos/test.git", "token", accountId));
+            // Gitlab private repo
+            String GITLAB_TOKEN = System.getenv("GITLAB_TOKEN");
+            depotRepository.save(new Depot("Clement test GL Laravel", "https://gitlab.com/Clement.Chevalier/testlaravel.git", GITLAB_TOKEN, accountId));
         }
     }
 
