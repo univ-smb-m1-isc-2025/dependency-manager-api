@@ -1,7 +1,9 @@
 package com.info803.dependency_manager_api.infrastructure.persistence;
 
 import java.lang.reflect.Field;
-abstract class BddEntity {
+import jakarta.persistence.MappedSuperclass;
+@MappedSuperclass
+public abstract class BddEntity {
 
     // Methods
     /**
