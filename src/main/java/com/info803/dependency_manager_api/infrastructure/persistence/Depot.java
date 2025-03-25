@@ -3,6 +3,7 @@ package com.info803.dependency_manager_api.infrastructure.persistence;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.PostPersist;
 
 // Git import
 import org.eclipse.jgit.api.Git;
@@ -36,6 +37,17 @@ public class Depot extends BddEntity{
         this.url = url;
         this.token = token;
         this.accountId = accountId;
+        this.path = null;
+    }
+
+    /**
+     * This method is called after the entity has been persisted in the database.
+     * It creates a directory in the file system with the id of the entity as the name.
+     * The directory is used to store the files of the depot.
+     */
+    @PostPersist
+    public void postPersist() {
+        // Create directory path
         this.path = "depots/" + this.id;
     }
 
