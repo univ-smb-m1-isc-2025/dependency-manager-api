@@ -9,6 +9,8 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
+import com.info803.dependency_manager_api.infrastructure.utils.BddEntity;
+
 import java.io.File;
 
 @Entity
@@ -77,6 +79,10 @@ public class Depot extends BddEntity{
     }
 
     // Methods
+    /**
+     * Clones the repository at the given URL and token into a directory at depots/<id>
+     * @return a String indicating whether the depot was cloned or not
+     */
     public String gitClone() {
         try {
             // Clone the repository
@@ -91,6 +97,10 @@ public class Depot extends BddEntity{
         }
     }
 
+    /**
+     * Pulls the repository at the given URL and token from the directory at depots/<id>
+     * @return a String indicating whether the depot was pulled or not
+     */
     public String gitPull() {
         try (Git git = Git.open(new File("depots/" + id))) {
             git.pull().call();
@@ -100,6 +110,12 @@ public class Depot extends BddEntity{
         }
     }
     
+    /**
+     * Lists all files in the cloned repository at depots/<id>
+     * @return an array of File objects representing the files in the repository
+     * @throws RepositoryNotFoundException if the cloned repository does not exist
+     * @throws RuntimeException if any other error occurs
+     */
     public File[] gitCode() {
         try {
             File repoDirectory = new File("depots/" + id);
@@ -114,6 +130,12 @@ public class Depot extends BddEntity{
         }
     }
 
+    /**
+     * Deletes the cloned repository at depots/<id>
+     * @return a String indicating whether the depot was deleted or not
+     * @throws RepositoryNotFoundException if the cloned repository does not exist
+     * @throws RuntimeException if any other error occurs
+     */
     public String gitDelete() {
         try {
             // Supprime le répertoire cloné
@@ -129,8 +151,12 @@ public class Depot extends BddEntity{
         }
     }
 
+    /**
+     * Returns a string listing all dependencies for the given depot.
+     * @return a string listing all dependencies for the given depot
+     */
     public String listDependecies() {
-        return "";
+        // TODO
     }
 
     // Private methods
