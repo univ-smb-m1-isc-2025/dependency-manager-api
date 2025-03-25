@@ -40,17 +40,6 @@ public class Depot extends BddEntity{
         this.path = null;
     }
 
-    /**
-     * This method is called after the entity has been persisted in the database.
-     * It creates a directory in the file system with the id of the entity as the name.
-     * The directory is used to store the files of the depot.
-     */
-    @PostPersist
-    public void postPersist() {
-        // Create directory path
-        this.path = "depots/" + this.id;
-    }
-
     // Getters
     public Long getId() {
         return id;
@@ -107,6 +96,9 @@ public class Depot extends BddEntity{
      * @return a String indicating whether the depot was cloned or not
      */
     public String gitClone() {
+        if (path == null) {
+            this.path = "depots/" + this.id;
+        }
         try {
             // Clone the repository
             Git.cloneRepository()
