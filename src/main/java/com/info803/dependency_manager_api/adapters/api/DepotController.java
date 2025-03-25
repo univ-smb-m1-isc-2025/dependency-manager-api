@@ -16,6 +16,8 @@ import java.util.Optional;
 import java.io.File;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/depots")
@@ -169,6 +171,17 @@ public class DepotController {
         logger.info("codeDelete");
         try {
             String msg = depotService.gitDelete(id);
+            return ResponseEntity.ok(new ApiResponse<>(msg));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+        }
+    }
+
+    @GetMapping("{id}/code/technology")
+    public ResponseEntity<ApiResponse<String>> gitCodeTechnology(@PathVariable Long id) {
+        logger.info("codeTechnology");
+        try {
+            String msg = depotService.gitCodeTechnology(id);
             return ResponseEntity.ok(new ApiResponse<>(msg));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));

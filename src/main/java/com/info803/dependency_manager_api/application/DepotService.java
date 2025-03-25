@@ -55,6 +55,7 @@ public class DepotService {
         depotRepository.save(existingDepot);
     }
 
+    // -- Depot actions --
     public String gitClone(Long id) {
         Optional<Depot> depot = depotRepository.findById(id);
         if (!depot.isPresent()) {
@@ -94,6 +95,14 @@ public class DepotService {
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
+    }
+
+    public String gitCodeTechnology(Long id) {
+        Optional<Depot> depot = depotRepository.findById(id);
+        if (!depot.isPresent()) {
+            throw new IllegalArgumentException("Depot not found");
+        }
+        return depot.get().gitCodeTechnology();
     }
 
 }
