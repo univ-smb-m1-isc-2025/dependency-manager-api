@@ -27,7 +27,6 @@ public class Depot extends BddEntity{
     private String url;
     private String token;
     private Long accountId;
-    private String path;
 
     // Constructors
     public Depot() {}
@@ -37,7 +36,6 @@ public class Depot extends BddEntity{
         this.url = url;
         this.token = token;
         this.accountId = accountId;
-        this.path = null;
     }
 
     // Getters
@@ -62,7 +60,7 @@ public class Depot extends BddEntity{
     }
 
     public String getPath() {
-        return path;
+        return "depots/" + id;
     }
 
     // Setters
@@ -86,27 +84,20 @@ public class Depot extends BddEntity{
         this.accountId = accountId;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
-
     // Methods
     /**
      * Clones the repository at the given URL and token into a directory at depots/<id>
      * @return a String indicating whether the depot was cloned or not
      */
     public String gitClone() {
-        if (path == null) {
-            setPath("depots/" + id);
-        }
         try {
             // Clone the repository
             Git.cloneRepository()
                 .setURI(url)
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
-                .setDirectory(new File(path))
+                .setDirectory(new File(getPath()))
                 .call();
-            return "Depot cloned successfully to " + path;
+            return "Depot cloned successfully to " + getPath();
         } catch (Exception e) {
             return "Error cloning depot: " + e.getMessage();
         }
@@ -117,12 +108,12 @@ public class Depot extends BddEntity{
      * @return a String indicating whether the depot was pulled or not
      */
     public String gitPull() {
-        if (path == null) {
+        if (getPath() == null) {
             return "Error pulling depot: depot code path is null";
         }
-        try (Git git = Git.open(new File(path))) {
+        try (Git git = Git.open(new File(getPath()))) {
             git.pull().call();
-            return "Depot pulled successfully to " + path;
+            return "Depot pulled successfully to " + getPath();
         } catch (Exception e) {
             return "Error pulling depot: " + e.getMessage();
         }
@@ -135,11 +126,11 @@ public class Depot extends BddEntity{
      * @throws RuntimeException if any other error occurs
      */
     public File[] gitCode() throws RepositoryNotFoundException {
-        if (path == null) {
+        if (getPath() == null) {
             throw new RepositoryNotFoundException("Git code : Path is null");
         }
         try {
-            File repoDirectory = new File(path);
+            File repoDirectory = new File(getPath());
 
             if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
                 throw new RepositoryNotFoundException("Cloned repository not found.");
@@ -158,13 +149,13 @@ public class Depot extends BddEntity{
      * @throws RuntimeException if any other error occurs
      */
     public String gitDelete() {
-        if (path == null) {
+        if (getPath() == null) {
             return "Error deleting depot code: depot code path is null";
         }
 
         try {
             // Supprime le répertoire cloné
-            File repoDirectory = new File(path);
+            File repoDirectory = new File(getPath());
             if (!repoDirectory.exists() && !repoDirectory.isDirectory()) {
                 throw new RepositoryNotFoundException("Cloned repository not found.");
             }
@@ -183,17 +174,17 @@ public class Depot extends BddEntity{
      */
 
     public String gitCodeTechnology() {
-        if (path == null) {
+        if (getPath() == null) {
             return "Error getting depot code technology: depot code path is null";
         }
 
         try {
             // Détecte la technologie utilisée dans le répertoire cloné
-            File repoDirectory = new File(path);
+            File repoDirectory = new File(getPath());
             if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
                 throw new RepositoryNotFoundException("Cloned repository not found.");
             }
-            return Technology.detectTechnology(path).toString();
+            return Technology.detectTechnology(getPath()).toString();
         } catch (Exception e) {
             return "Error detecting technology: " + e.getMessage();
         }
