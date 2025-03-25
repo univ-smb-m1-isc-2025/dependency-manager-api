@@ -2,7 +2,6 @@ package com.info803.dependency_manager_api.application;
 
 import com.info803.dependency_manager_api.infrastructure.persistence.Account;
 import com.info803.dependency_manager_api.infrastructure.persistence.AccountRepository;
-import com.info803.dependency_manager_api.infrastructure.persistence.CodeRepository;
 import com.info803.dependency_manager_api.infrastructure.persistence.Depot;
 import com.info803.dependency_manager_api.infrastructure.persistence.DepotRepository;
 import org.springframework.stereotype.Service;
@@ -15,12 +14,10 @@ import java.io.File;
 public class DepotService {
     private final DepotRepository depotRepository;
     private final AccountRepository accountRepository;
-    private final CodeRepository codeRepository;
 
-    public DepotService(DepotRepository depotRepository, AccountRepository accountRepository, CodeRepository codeRepository) {
+    public DepotService(DepotRepository depotRepository, AccountRepository accountRepository) {
         this.depotRepository = depotRepository;
         this.accountRepository = accountRepository;
-        this.codeRepository = codeRepository;
     }
 
     public List<Depot> depotList() {
