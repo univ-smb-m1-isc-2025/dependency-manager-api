@@ -97,7 +97,7 @@ public class Depot extends BddEntity{
      */
     public String gitClone() {
         if (path == null) {
-            this.path = "depots/" + this.id;
+            setPath("depots/" + id);
         }
         try {
             // Clone the repository
@@ -138,7 +138,6 @@ public class Depot extends BddEntity{
         if (path == null) {
             throw new RepositoryNotFoundException("Git code : Path is null");
         }
-
         try {
             File repoDirectory = new File(path);
 
