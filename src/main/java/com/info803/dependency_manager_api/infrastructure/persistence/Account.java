@@ -10,6 +10,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.info803.dependency_manager_api.infrastructure.utils.BddEntity;
 
 @Entity
 public class Account extends BddEntity {

@@ -1,4 +1,4 @@
-package com.info803.dependency_manager_api.infrastructure.persistence;
+package com.info803.dependency_manager_api.infrastructure.utils;
 
 import java.lang.reflect.Field;
 import jakarta.persistence.MappedSuperclass;
