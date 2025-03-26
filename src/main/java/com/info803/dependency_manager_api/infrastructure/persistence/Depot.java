@@ -10,7 +10,9 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import com.info803.dependency_manager_api.infrastructure.utils.BddEntity;
+import com.info803.dependency_manager_api.infrastructure.utils.Dependency;
 import com.info803.dependency_manager_api.infrastructure.utils.Technology;
+import com.info803.dependency_manager_api.infrastructure.utils.TechnologyType;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -176,7 +178,7 @@ public class Depot extends BddEntity{
      * @throws RepositoryNotFoundException if the cloned repository does not exist.
      */
 
-    public Map<String, List<String>> gitCodeTechnology() {
+    public Map<TechnologyType, List<String>> gitCodeTechnology() {
         if (getPath() == null) {
             throw new RuntimeException("Error getting depot code technology: depot code path is null");
         }
@@ -194,12 +196,24 @@ public class Depot extends BddEntity{
     }
 
     /**
-     * Returns a string listing all dependencies for the given depot.
-     * @return a string listing all dependencies for the given depot
+     * Detects the dependencies used in the cloned repository directory.
+     * @return a String representing the dependency type detected, or an error message if detection fails.
+     * @throws RepositoryNotFoundException if the cloned repository does not exist.
      */
-    public String listDependecies() {
-        // TODO
-        return "";
+    public Map<TechnologyType, List<String>> gitCodeDependency() {
+        if (getPath() == null) {
+            throw new RuntimeException("Error getting depot code dependency: depot code path is null");
+        }
+
+        try {
+            // Get technologies used in the cloned repository directory
+            Map<TechnologyType, List<String>> technologies = gitCodeTechnology();
+            // Get dependencies used in the cloned repository directory
+            return Dependency.detectDependencies(technologies);
+            
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     // Private methods

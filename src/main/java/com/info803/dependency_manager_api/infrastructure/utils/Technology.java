@@ -19,7 +19,7 @@ public class Technology {
      * @param repoPath Chemin du répertoire du projet
      * @return Les technologies utilisées dans le répertoire sous la forme d'un dictionnaire de paires "technologie" -> "liste des fichiers reconnus"
     */
-    public static Map<String, List<String>> detectTechnologies(String repoPath) {
+    public static Map<TechnologyType, List<String>> detectTechnologies(String repoPath) {
         File repoDirectory = new File(repoPath);
         if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
             return Collections.emptyMap();
@@ -28,7 +28,7 @@ public class Technology {
         File[] filesInRepo = repoDirectory.listFiles();
         if (filesInRepo == null) return Collections.emptyMap();
 
-        Map<String, List<String>> detectedTechnologies = new HashMap<>();
+        Map<TechnologyType, List<String>> detectedTechnologies = new HashMap<>();
 
         for (TechnologyType tech : TechnologyType.values()) {
             List<String> matchedFiles = Arrays.stream(tech.getFiles())
@@ -38,29 +38,10 @@ public class Technology {
                     .collect(Collectors.toList());
 
             if (!matchedFiles.isEmpty()) {
-                detectedTechnologies.put(tech.getName(), matchedFiles);
+                detectedTechnologies.put(tech, matchedFiles);
             }
         }
 
         return detectedTechnologies;
     }
-
-
-    // public static List<TechnologyType> detectTechnologies(String repoPath) {
-    //     File repoDirectory = new File(repoPath);
-    //     if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
-    //         return Collections.emptyList();
-    //     }
-
-    //     File[] filesInRepo = repoDirectory.listFiles();
-    //     if (filesInRepo == null) return Collections.emptyList();
-
-    //     // Liste des technologies détectées
-    //     List<TechnologyType> detectedTechnologies = Arrays.stream(TechnologyType.values())
-    //             .filter(tech -> Arrays.stream(tech.getFiles())
-    //                     .anyMatch(fileName -> new File(repoDirectory, fileName).exists()))
-    //             .collect(Collectors.toList());
-
-    //     return detectedTechnologies;
-    // }
 }

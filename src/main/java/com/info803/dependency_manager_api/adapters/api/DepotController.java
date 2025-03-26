@@ -1,6 +1,7 @@
 package com.info803.dependency_manager_api.adapters.api;
 
 import com.info803.dependency_manager_api.infrastructure.persistence.Depot;
+import com.info803.dependency_manager_api.infrastructure.utils.TechnologyType;
 import com.info803.dependency_manager_api.application.DepotService;
 
 import org.slf4j.Logger;
@@ -178,14 +179,36 @@ public class DepotController {
         }
     }
 
+    /**
+     * Detects the technologies used in the code of a depot
+     * @param id the unique identifier of the depot to analyze
+     * @return a String indicating whether the depot was analyzed or not, and a Map containing the technologies used in the depot
+     */
     @GetMapping("{id}/code/technology")
-    public ResponseEntity<ApiResponse<Map<String, List<String>>>> gitCodeTechnology(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Map<TechnologyType, List<String>>>> gitCodeTechnology(@PathVariable Long id) {
         logger.info("codeTechnology");
         try {
-            Map<String, List<String>> technologies = depotService.gitCodeTechnology(id);
+            Map<TechnologyType, List<String>> technologies = depotService.gitCodeTechnology(id);
             return ResponseEntity.ok(new ApiResponse<>("Code technology displayed", technologies));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
+
+    /**
+     * Detects the dependencies used in the code of a depot
+     * @param id the unique identifier of the depot to analyze
+     * @return a String indicating whether the depot was analyzed or not, and a Map containing the dependencies used in the depot
+     */
+    @GetMapping("{id}/code/dependency")
+    public ResponseEntity<ApiResponse<Map<TechnologyType, List<String>>>> gitCodeDependency(@PathVariable Long id) {
+        logger.info("codeDependency");
+        try {
+            Map<TechnologyType, List<String>> dependencies = depotService.gitCodeDependency(id);
+            return ResponseEntity.ok(new ApiResponse<>("Code dependency displayed", dependencies));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
+        }
+    }
+    
 }
