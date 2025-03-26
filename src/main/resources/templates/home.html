@@ -18,11 +18,38 @@
         })
           .then((response) => response.json())
           .then((data) => {
+            return data;
+          });
+      }
+      async function cloneDepot(id) {
+        fetch("http://localhost:8080/api/depots/" + id + "/clone", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
             console.log(data);
+          });
+      }
+      async function getDepotTechnologies(id) {
+        fetch("http://localhost:8080/api/depots/" + id + "/code/technology", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
             return data;
           });
       }
       const depots = await getDepots();
+      const depot = depots.data[1];
+      await cloneDepot(depot.id);
+      const technologies = await getDepotTechnologies(depot.id);
+      console.log(technologies);
     });
   </script>
 </html>
