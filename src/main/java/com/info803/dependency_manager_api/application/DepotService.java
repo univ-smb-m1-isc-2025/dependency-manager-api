@@ -102,7 +102,11 @@ public class DepotService {
         if (!depot.isPresent()) {
             throw new IllegalArgumentException("Depot not found");
         }
-        return depot.get().gitCodeTechnology();
+        try {
+            return depot.get().gitCodeTechnology();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
 }
