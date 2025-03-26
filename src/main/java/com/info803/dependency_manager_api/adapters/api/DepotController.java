@@ -41,7 +41,7 @@ public class DepotController {
             List<Depot> depots = depotService.depotList();
             return ResponseEntity.ok(new ApiResponse<>("Depots retrieved", depots));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
     
@@ -58,7 +58,7 @@ public class DepotController {
             Optional<Depot> depot = depotService.depot(id);
             return ResponseEntity.ok(new ApiResponse<>("Depot retrieved", depot));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 
@@ -75,7 +75,7 @@ public class DepotController {
             depotService.create(depot);
             return ResponseEntity.ok(new ApiResponse<>("Depot created"));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 
@@ -92,7 +92,7 @@ public class DepotController {
             depotService.delete(id);
             return ResponseEntity.ok(new ApiResponse<>("Depot deleted"));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 
@@ -109,7 +109,7 @@ public class DepotController {
             depotService.update(depot);
             return ResponseEntity.ok(new ApiResponse<>("Depot updated"));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 
@@ -125,7 +125,7 @@ public class DepotController {
             String msg = depotService.gitClone(id);
             return ResponseEntity.ok(new ApiResponse<>(msg));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 
@@ -141,7 +141,7 @@ public class DepotController {
             String msg = depotService.gitPull(id);
             return ResponseEntity.ok(new ApiResponse<>(msg));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 
@@ -157,7 +157,7 @@ public class DepotController {
             List<File> files = depotService.gitCode(id);
             return ResponseEntity.ok(new ApiResponse<>("Code displayed", files));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 
@@ -173,7 +173,7 @@ public class DepotController {
             String msg = depotService.gitDelete(id);
             return ResponseEntity.ok(new ApiResponse<>(msg));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 
@@ -181,10 +181,10 @@ public class DepotController {
     public ResponseEntity<ApiResponse<String>> gitCodeTechnology(@PathVariable Long id) {
         logger.info("codeTechnology");
         try {
-            String msg = depotService.gitCodeTechnology(id);
-            return ResponseEntity.ok(new ApiResponse<>(msg));
+            String technologies = depotService.gitCodeTechnology(id);
+            return ResponseEntity.ok(new ApiResponse<>("Code technology displayed", technologies));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 }

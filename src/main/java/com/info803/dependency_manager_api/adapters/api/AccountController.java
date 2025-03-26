@@ -41,7 +41,7 @@ public class AccountController {
             List<Account> accounts = accountService.accountList();  
             return ResponseEntity.ok(new ApiResponse<>("Accounts retrieved", accounts));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 
@@ -58,7 +58,7 @@ public class AccountController {
             Optional<Account> account = accountService.account(id);  
             return ResponseEntity.ok(new ApiResponse<>("Account retrieved", account));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 
@@ -75,7 +75,7 @@ public class AccountController {
             accountService.create(account);  
             return ResponseEntity.ok(new ApiResponse<>("Account created"));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 
@@ -92,7 +92,7 @@ public class AccountController {
             boolean connected = accountService.connect(account.getMail(), account.getPassword());  
             return ResponseEntity.ok(new ApiResponse<>("isConnected", connected));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 
@@ -109,7 +109,7 @@ public class AccountController {
             accountService.delete(id);  
             return ResponseEntity.ok(new ApiResponse<>("Account deleted"));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 
@@ -126,7 +126,7 @@ public class AccountController {
             accountService.update(account);  
             return ResponseEntity.ok(new ApiResponse<>("Account updated"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 
@@ -143,7 +143,7 @@ public class AccountController {
             List<Depot> depots = accountService.accountDepots(id);
             return ResponseEntity.ok(new ApiResponse<>("Depots retrieved", depots));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
         }
     }
 }
