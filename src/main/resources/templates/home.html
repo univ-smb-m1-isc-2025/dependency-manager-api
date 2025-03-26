@@ -5,52 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Waiting...</title>
   </head>
-  <body></body>
-  <script>
-    document.addEventListener("DOMContentLoaded", async function () {
-      // Request on local API
-      async function getDepots() {
-        fetch("http://localhost:8080/api/depots", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            return data;
-          });
-      }
-      async function cloneDepot(id) {
-        fetch("http://localhost:8080/api/depots/" + id + "/clone", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log(data);
-          });
-      }
-      async function getDepotTechnologies(id) {
-        fetch("http://localhost:8080/api/depots/" + id + "/code/technology", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            return data;
-          });
-      }
-      const depots = await getDepots();
-      console.log(depots);
-      const depot = depots[0];
-      await cloneDepot(depot.id);
-      const technologies = await getDepotTechnologies(depot.id);
-      console.log(technologies);
-    });
-  </script>
+  <body>
+    Hello there !
+  </body>
 </html>
