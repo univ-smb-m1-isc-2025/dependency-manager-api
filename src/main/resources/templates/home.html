@@ -46,9 +46,10 @@
           });
       }
       const depots = await getDepots();
-      const depot = depots["data"][0];
-      await cloneDepot(depot["id"]);
-      const technologies = await getDepotTechnologies(depot["id"]);
+      console.log(depots);
+      const depot = depots[0];
+      await cloneDepot(depot.id);
+      const technologies = await getDepotTechnologies(depot.id);
       console.log(technologies);
     });
   </script>
