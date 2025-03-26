@@ -120,7 +120,7 @@ public class DepotService {
         }
     }
 
-    public Map<TechnologyType, List<String>> gitCodeDependency(Long id) {
+    public Map<TechnologyType, Map<String, String>> gitCodeDependency(Long id) {
         Optional<Depot> depot = depotRepository.findById(id);
         if (!depot.isPresent()) {
             throw new IllegalArgumentException("Depot not found");

@@ -10,7 +10,7 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import com.info803.dependency_manager_api.infrastructure.utils.BddEntity;
-import com.info803.dependency_manager_api.infrastructure.utils.Dependency;
+import com.info803.dependency_manager_api.infrastructure.utils.DependencyDetector;
 import com.info803.dependency_manager_api.infrastructure.utils.Technology;
 import com.info803.dependency_manager_api.infrastructure.utils.TechnologyType;
 
@@ -200,7 +200,7 @@ public class Depot extends BddEntity{
      * @return a String representing the dependency type detected, or an error message if detection fails.
      * @throws RepositoryNotFoundException if the cloned repository does not exist.
      */
-    public Map<TechnologyType, List<String>> gitCodeDependency() {
+    public Map<TechnologyType, Map<String, String>> gitCodeDependency() {
         if (getPath() == null) {
             throw new RuntimeException("Error getting depot code dependency: depot code path is null");
         }
@@ -209,7 +209,7 @@ public class Depot extends BddEntity{
             // Get technologies used in the cloned repository directory
             Map<TechnologyType, List<String>> technologies = gitCodeTechnology();
             // Get dependencies used in the cloned repository directory
-            return Dependency.detectDependencies(technologies);
+            return DependencyDetector.detectDependencies(technologies);
             
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());

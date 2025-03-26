@@ -201,10 +201,10 @@ public class DepotController {
      * @return a String indicating whether the depot was analyzed or not, and a Map containing the dependencies used in the depot
      */
     @GetMapping("{id}/code/dependency")
-    public ResponseEntity<ApiResponse<Map<TechnologyType, List<String>>>> gitCodeDependency(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Map<TechnologyType, Map<String, String>>>> gitCodeDependency(@PathVariable Long id) {
         logger.info("codeDependency");
         try {
-            Map<TechnologyType, List<String>> dependencies = depotService.gitCodeDependency(id);
+            Map<TechnologyType, Map<String, String>> dependencies = depotService.gitCodeDependency(id);
             return ResponseEntity.ok(new ApiResponse<>("Code dependency displayed", dependencies));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
