@@ -100,23 +100,24 @@ public class Depot extends BddEntity{
                 .call();
             return "Depot cloned successfully to " + getPath();
         } catch (Exception e) {
-            return "Error cloning depot: " + e.getMessage();
+            throw new RuntimeException(e.getMessage());
         }
     }
 
     /**
      * Pulls the repository at the given URL and token from the directory at depots/<id>
      * @return a String indicating whether the depot was pulled or not
-     */
-    public String gitPull() {
+     * @throws RepositoryNotFoundException 
+    */
+    public String gitPull() throws RepositoryNotFoundException {
         if (getPath() == null) {
-            return "Error pulling depot: depot code path is null";
+            throw new RepositoryNotFoundException("Git pull : Path is null");
         }
         try (Git git = Git.open(new File(getPath()))) {
             git.pull().call();
             return "Depot pulled successfully to " + getPath();
         } catch (Exception e) {
-            return "Error pulling depot: " + e.getMessage();
+            throw new RuntimeException(e.getMessage());
         }
     }
     
@@ -164,7 +165,7 @@ public class Depot extends BddEntity{
             repoDirectory.delete();
             return "Depot deleted successfully";
         } catch (Exception e) {
-            return "Error deleting depot: " + e.getMessage();
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -187,7 +188,7 @@ public class Depot extends BddEntity{
             }
             return Technology.detectTechnologies(getPath()).toString();
         } catch (Exception e) {
-            return "Error detecting technology: " + e.getMessage();
+            throw new RuntimeException(e.getMessage());
         }
     }
 

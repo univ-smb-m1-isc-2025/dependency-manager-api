@@ -39,7 +39,11 @@ public class AccountService {
         if (tempAccount.isPresent()) {
             throw new IllegalArgumentException("Account already exists");
         }
-        accountRepository.save(new Account(account.getMail(), account.getPassword()));
+        try {
+            accountRepository.save(new Account(account.getMail(), account.getPassword()));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Account not created : " + e.getMessage());
+        }
     }
 
     public void delete(Long accountId) {
@@ -47,7 +51,11 @@ public class AccountService {
         if (!account.isPresent()) {
             throw new IllegalArgumentException("Account not found");
         }
-        accountRepository.delete(account.get());
+        try {
+            accountRepository.delete(account.get());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Account not deleted : " + e.getMessage());
+        }
     }
 
     public void update(Account account) {
@@ -60,8 +68,12 @@ public class AccountService {
         if (accountWithMail.isPresent() && !accountWithMail.get().getId().equals(existingAccount.getId())) {
             throw new IllegalArgumentException("Email already in use");
         }
-        existingAccount.updateFrom(account);
-        accountRepository.save(existingAccount);
+        try {
+            existingAccount.updateFrom(account);
+            accountRepository.save(existingAccount);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Account not updated : " + e.getMessage());
+        }
     }
 
     public List<Depot> accountDepots(Long accountId) {
@@ -69,7 +81,11 @@ public class AccountService {
         if (!account.isPresent()) {
             throw new IllegalArgumentException("Account not found");
         }
-        return depotRepository.findByAccountId(accountId);
+        try {
+            return depotRepository.findByAccountId(accountId);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Depots not found : " + e.getMessage());
+        }
     }
 
     public boolean connect(String mail, String password) {

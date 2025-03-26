@@ -61,7 +61,11 @@ public class DepotService {
         if (!depot.isPresent()) {
             throw new IllegalArgumentException("Depot not found");
         }
-        return depot.get().gitClone();
+        try {
+            return depot.get().gitClone();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     public String gitPull(Long id) {
@@ -69,7 +73,11 @@ public class DepotService {
         if (!depot.isPresent()) {
             throw new IllegalArgumentException("Depot not found");
         }
-        return depot.get().gitPull();
+        try {
+            return depot.get().gitPull();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     public List<File> gitCode(Long id) {
