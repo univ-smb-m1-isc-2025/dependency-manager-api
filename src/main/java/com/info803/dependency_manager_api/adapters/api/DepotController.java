@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.io.File;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -178,10 +179,10 @@ public class DepotController {
     }
 
     @GetMapping("{id}/code/technology")
-    public ResponseEntity<ApiResponse<String>> gitCodeTechnology(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Map<String, List<String>>>> gitCodeTechnology(@PathVariable Long id) {
         logger.info("codeTechnology");
         try {
-            String technologies = depotService.gitCodeTechnology(id);
+            Map<String, List<String>> technologies = depotService.gitCodeTechnology(id);
             return ResponseEntity.ok(new ApiResponse<>("Code technology displayed", technologies));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));

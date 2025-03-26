@@ -15,6 +15,7 @@ import com.info803.dependency_manager_api.infrastructure.utils.Technology;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 public class Depot extends BddEntity{
@@ -127,9 +128,9 @@ public class Depot extends BddEntity{
      * @throws RepositoryNotFoundException if the cloned repository does not exist
      * @throws RuntimeException if any other error occurs
      */
-    public List<File> gitCode() throws RepositoryNotFoundException {
+    public List<File> gitCode() {
         if (getPath() == null) {
-            throw new RepositoryNotFoundException("Git code : Path is null");
+            throw new RuntimeException("Git code : Path is null");
         }
         try {
             File repoDirectory = new File(getPath());
@@ -175,9 +176,9 @@ public class Depot extends BddEntity{
      * @throws RepositoryNotFoundException if the cloned repository does not exist.
      */
 
-    public String gitCodeTechnology() {
+    public Map<String, List<String>> gitCodeTechnology() {
         if (getPath() == null) {
-            return "Error getting depot code technology: depot code path is null";
+            throw new RuntimeException("Error getting depot code technology: depot code path is null");
         }
 
         try {
@@ -186,7 +187,7 @@ public class Depot extends BddEntity{
             if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
                 throw new RepositoryNotFoundException("Cloned repository not found.");
             }
-            return Technology.detectTechnologies(getPath()).toString();
+            return Technology.detectTechnologies(getPath());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

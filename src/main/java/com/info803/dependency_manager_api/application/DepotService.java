@@ -7,6 +7,7 @@ import com.info803.dependency_manager_api.infrastructure.persistence.DepotReposi
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.io.File;
 
@@ -105,7 +106,7 @@ public class DepotService {
         }
     }
 
-    public String gitCodeTechnology(Long id) {
+    public Map<String, List<String>> gitCodeTechnology(Long id) {
         Optional<Depot> depot = depotRepository.findById(id);
         if (!depot.isPresent()) {
             throw new IllegalArgumentException("Depot not found");
