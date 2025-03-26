@@ -15,9 +15,9 @@ public class Technology {
     /**
      * Détecte les technologies utilisées dans un répertoire donné.
      * @param repoPath Chemin du répertoire du projet
-     * @return Les technologies utilisées dans le répertoire
+     * @return Les technologies utilisées dans le répertoire sous la forme d'un dictionnaire de paires "technologie" -> "liste des fichiers reconnus"
     */
-    public static List<TechnologyType> detectTechnologies(String repoPath) {
+    public static List<String> detectTechnologies(String repoPath) {
         File repoDirectory = new File(repoPath);
         if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
             return Collections.emptyList();
@@ -27,11 +27,29 @@ public class Technology {
         if (filesInRepo == null) return Collections.emptyList();
 
         // Liste des technologies détectées
-        List<TechnologyType> detectedTechnologies = Arrays.stream(TechnologyType.values())
+        return Arrays.stream(TechnologyType.values())
                 .filter(tech -> Arrays.stream(tech.getFiles())
                         .anyMatch(fileName -> new File(repoDirectory, fileName).exists()))
-                .collect(Collectors.toList());
-
-        return detectedTechnologies;
+                .map(TechnologyType::getName)
+                .toList();
     }
+
+
+    // public static List<TechnologyType> detectTechnologies(String repoPath) {
+    //     File repoDirectory = new File(repoPath);
+    //     if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
+    //         return Collections.emptyList();
+    //     }
+
+    //     File[] filesInRepo = repoDirectory.listFiles();
+    //     if (filesInRepo == null) return Collections.emptyList();
+
+    //     // Liste des technologies détectées
+    //     List<TechnologyType> detectedTechnologies = Arrays.stream(TechnologyType.values())
+    //             .filter(tech -> Arrays.stream(tech.getFiles())
+    //                     .anyMatch(fileName -> new File(repoDirectory, fileName).exists()))
+    //             .collect(Collectors.toList());
+
+    //     return detectedTechnologies;
+    // }
 }
