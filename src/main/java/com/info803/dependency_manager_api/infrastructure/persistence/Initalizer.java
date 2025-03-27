@@ -2,17 +2,24 @@ package com.info803.dependency_manager_api.infrastructure.persistence;
 
 import org.springframework.stereotype.Service;
 
+import com.info803.dependency_manager_api.application.AccountService;
+import com.info803.dependency_manager_api.application.DepotService;
+
 import jakarta.annotation.PostConstruct;
 
 @Service
 class Initializer {
 
     private final AccountRepository accountRepository;
+    private final AccountService accountService;
     private final DepotRepository depotRepository;
+    private final DepotService depotService;
 
-    public Initializer(AccountRepository accountRepository, DepotRepository depotRepository) {
+    public Initializer(AccountRepository accountRepository, AccountService accountService, DepotRepository depotRepository, DepotService depotService) {
         this.accountRepository = accountRepository;
+        this.accountService = accountService;
         this.depotRepository = depotRepository;
+        this.depotService = depotService;
     }
 
     @PostConstruct
@@ -21,7 +28,7 @@ class Initializer {
         accountRepository.deleteAllInBatch();
 
         if (accountRepository.findAll().isEmpty()) {
-            accountRepository.saveAndFlush(new Account("admin@mail", "admin"));
+            accountService.create(new Account("admin@mail.com", "admin"));
         }
 
         depotRepository.deleteAllInBatch();
@@ -29,14 +36,14 @@ class Initializer {
             // Get the first account
             Long accountId = accountRepository.findAll().get(0).getId();
             // Github public repo
-            depotRepository.save(new Depot("Clement test GH", "https://github.com/Oziphos/test.git", "token", accountId));
+            depotService.create(new Depot("Clement test GH", "https://github.com/Oziphos/test.git", "token", accountId));
             // Gitlab 
             String GITLAB_TOKEN = System.getenv("GITLAB_TOKEN");
-            depotRepository.save(new Depot("Clement test GL Laravel", "https://gitlab.com/Clement.Chevalier/testlaravel.git", GITLAB_TOKEN, accountId));
+            depotService.create(new Depot("Clement test GL Laravel", "https://gitlab.com/Clement.Chevalier/testlaravel.git", GITLAB_TOKEN, accountId));
             // Github BattleArenaGame
-            depotRepository.save(new Depot("BattleArenaGame", "https://github.com/Oziphos/BattleArenaGame.git", "token", accountId));
+            depotService.create(new Depot("BattleArenaGame", "https://github.com/Oziphos/BattleArenaGame.git", "token", accountId));
             // Github GithubCredentialsAPI
-            depotRepository.save(new Depot("GithubCredentialsAPI", "https://github.com/Oziphos/GitHubCredentialsAPI.git", "token", accountId));
+            depotService.create(new Depot("GithubCredentialsAPI", "https://github.com/Oziphos/GitHubCredentialsAPI.git", "token", accountId));
         }
     }
 
