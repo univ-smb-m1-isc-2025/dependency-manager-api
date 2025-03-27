@@ -7,7 +7,9 @@ public abstract class BddEntity {
 
     // Methods
     /**
-     * Updates the current object from the given entity
+     * Updates the current object from the given object
+     * It copies all the fields of the given object to the current object
+     * and keeps other fields of the current object
      * @param entity
      */
     public void updateFrom(BddEntity entity) {
@@ -18,7 +20,6 @@ public abstract class BddEntity {
         Class<?> clazz = this.getClass();
         for (Field field : clazz.getDeclaredFields()) {
             field.setAccessible(true);
-
             try {
                 Object newValue = field.get(entity);
                 if (newValue != null && !java.lang.reflect.Modifier.isFinal(field.getModifiers())) {
