@@ -4,6 +4,7 @@ import com.info803.dependency_manager_api.infrastructure.persistence.Account;
 import com.info803.dependency_manager_api.infrastructure.persistence.AccountRepository;
 import com.info803.dependency_manager_api.infrastructure.persistence.Depot;
 import com.info803.dependency_manager_api.infrastructure.persistence.DepotRepository;
+import com.info803.dependency_manager_api.infrastructure.utils.EncryptionService;
 
 import org.springframework.stereotype.Service;
 
@@ -40,6 +41,7 @@ public class AccountService {
             throw new IllegalArgumentException("Account already exists");
         }
         try {
+            account.setPassword(EncryptionService.encrypt(account.getPassword()));
             accountRepository.save(new Account(account.getMail(), account.getPassword()));
         } catch (Exception e) {
             throw new IllegalArgumentException("Account not created : " + e.getMessage());
@@ -69,6 +71,7 @@ public class AccountService {
             throw new IllegalArgumentException("Email already in use");
         }
         try {
+            account.setPassword(EncryptionService.encrypt(account.getPassword()));
             existingAccount.updateFrom(account);
             accountRepository.save(existingAccount);
         } catch (Exception e) {
@@ -100,7 +103,7 @@ public class AccountService {
         }
         // Check if the password is correct
         try {
-            return account.get().getPassword().equals(password);
+            return EncryptionService.verifyHash(password, account.get().getPassword());
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while comparing password : " + e.getMessage());
         }
