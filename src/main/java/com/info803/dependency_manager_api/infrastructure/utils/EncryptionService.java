@@ -5,7 +5,6 @@ import org.mindrot.jbcrypt.BCrypt;
 public class EncryptionService {
 
     // Attributes
-    private static int saltDegree = 12;
 
     // Constructors
     private EncryptionService() {}
@@ -30,7 +29,7 @@ public class EncryptionService {
      * @return the hashed string
      */
     public static String hash(String string) {
-        return BCrypt.hashpw(string, BCrypt.gensalt(saltDegree));
+        return BCrypt.hashpw(string, BCrypt.gensalt());
     }
 
     /**
