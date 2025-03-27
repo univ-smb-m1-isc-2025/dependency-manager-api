@@ -41,7 +41,7 @@ public class AccountService {
             throw new IllegalArgumentException("Account already exists");
         }
         try {
-            account.setPassword(EncryptionService.encrypt(account.getPassword()));
+            account.setPassword(EncryptionService.hash(account.getPassword()));
             accountRepository.save(new Account(account.getMail(), account.getPassword()));
         } catch (Exception e) {
             throw new IllegalArgumentException("Account not created : " + e.getMessage());
@@ -71,7 +71,7 @@ public class AccountService {
             throw new IllegalArgumentException("Email already in use");
         }
         try {
-            account.setPassword(EncryptionService.encrypt(account.getPassword()));
+            account.setPassword(EncryptionService.hash(account.getPassword()));
             existingAccount.updateFrom(account);
             accountRepository.save(existingAccount);
         } catch (Exception e) {
