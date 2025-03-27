@@ -1,7 +1,5 @@
 package com.info803.dependency_manager_api.infrastructure.utils;
 
-import java.util.List;
-
 public enum TechnologyType {
     JAVA_MAVEN("Java (Maven)", "/project/dependencies/dependency", "pom.xml"),
     JAVA_GRADLE("Java (Gradle)", "dependencies", "build.gradle", "build.gradle.kts"),
@@ -20,7 +18,7 @@ public enum TechnologyType {
 
     TechnologyType(String name, String dependencyKey, String... files) {
         this.name = name;
-        this.dependencyKey = dependencyKey;
+        this.dependencyKey = dependencyKey; // Corresponds to the key in the JSON file
         this.files = files;
     }
 

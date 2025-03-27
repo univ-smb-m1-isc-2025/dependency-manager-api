@@ -14,11 +14,14 @@ public class Technology {
         // None
     }
 
+        
     /**
-     * Détecte les technologies utilisées dans un répertoire donné.
-     * @param repoPath Chemin du répertoire du projet
-     * @return Les technologies utilisées dans le répertoire sous la forme d'un dictionnaire de paires "technologie" -> "liste des fichiers reconnus"
-    */
+     * Detects the technologies used in the given repository directory.
+     *
+     * @param repoPath the path to the repository directory
+     * @return a map of TechnologyType to a list of file paths for each detected technology;
+     *         an empty map if the directory does not exist or contains no recognizable technology files
+     */
     public static Map<TechnologyType, List<String>> detectTechnologies(String repoPath) {
         File repoDirectory = new File(repoPath);
         if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
@@ -41,7 +44,7 @@ public class Technology {
                 detectedTechnologies.put(tech, matchedFiles);
             }
         }
-
+        
         return detectedTechnologies;
     }
 }
