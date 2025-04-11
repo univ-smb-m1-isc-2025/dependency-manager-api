@@ -1,7 +1,6 @@
 FROM eclipse-temurin:21-jre-alpine
 
 COPY ./target/dependency-manager-api-0.0.1-SNAPSHOT.jar .
-COPY ./dev-station/logback.xml .
 
 EXPOSE 8080
 
