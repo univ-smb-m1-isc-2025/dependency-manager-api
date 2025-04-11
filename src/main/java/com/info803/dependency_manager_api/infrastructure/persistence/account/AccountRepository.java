@@ -1,4 +1,4 @@
-package com.info803.dependency_manager_api.infrastructure.persistence;
+package com.info803.dependency_manager_api.infrastructure.persistence.account;
 
 import java.util.Optional;
 
@@ -10,9 +10,9 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     // Find 
     Optional<Account> findById(Long id);
-    Optional <Account> findByMail(String mail);
+    Optional <Account> findByEmail(String email);
 
     // Exists
     boolean existsById(Long id);
-    boolean existsByMail(String mail);
+    boolean existsByEmail(String email);
 }

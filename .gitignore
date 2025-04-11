@@ -1,7 +1,7 @@
 HELP.md
 target/
-dev-station/
-docker-compose/
+/dev-station
+/docker-compose
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

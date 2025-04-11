@@ -1,11 +1,15 @@
 package com.info803.dependency_manager_api.adapters.api;
 
-import com.info803.dependency_manager_api.infrastructure.persistence.Depot;
-import com.info803.dependency_manager_api.infrastructure.utils.TechnologyType;
+import com.info803.dependency_manager_api.infrastructure.persistence.depot.Depot;
+import com.info803.dependency_manager_api.adapters.api.response.ApiResponse;
+import com.info803.dependency_manager_api.adapters.api.response.ResponseUtil;
 import com.info803.dependency_manager_api.application.DepotService;
+import com.info803.dependency_manager_api.domain.dependency.Dependency;
+import com.info803.dependency_manager_api.domain.technology.AbstractTechnology;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("/api/depots")
+@RequestMapping("/depots")
 public class DepotController {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private final DepotService depotService;
@@ -38,13 +42,14 @@ public class DepotController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<Depot>>> depotList() {
         logger.info("depotsList");
-        try {
-            List<Depot> depots = depotService.depotList();
-            return ResponseEntity.ok(new ApiResponse<>("Depots retrieved", depots));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
-        }
+
+        List<Depot> depots = depotService.depotList();
+
+        ApiResponse<List<Depot>> response = ResponseUtil.success("Depots retrieved", depots);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
     
     /**
      * Retrives a single depot by its id
@@ -55,12 +60,12 @@ public class DepotController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Optional<Depot>>> depot(@PathVariable Long id) {
         logger.info("depot");
-        try {
-            Optional<Depot> depot = depotService.depot(id);
-            return ResponseEntity.ok(new ApiResponse<>("Depot retrieved", depot));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
-        }
+        
+        Optional<Depot> depot = depotService.depot(id);
+
+        ApiResponse<Optional<Depot>> response = ResponseUtil.success("Depot retrieved", depot);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -70,14 +75,14 @@ public class DepotController {
      * @return a String indicating whether the depot was created or not
      */
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<String>> create(@RequestBody Depot depot) {
+    public ResponseEntity<ApiResponse<Depot>> create(@RequestBody Depot depot) {
         logger.info("create");
-        try {
-            depotService.create(depot);
-            return ResponseEntity.ok(new ApiResponse<>("Depot created"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
-        }
+
+        Depot newDepot = depotService.create(depot);
+
+        ApiResponse<Depot> response = ResponseUtil.success("Depot created", newDepot);
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     /**
@@ -89,12 +94,12 @@ public class DepotController {
     @GetMapping("/{id}/delete")
     public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) {
         logger.info("delete");
-        try {
-            depotService.delete(id);
-            return ResponseEntity.ok(new ApiResponse<>("Depot deleted"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
-        }
+
+        depotService.delete(id);
+
+        ApiResponse<String> response = ResponseUtil.success("Depot deleted", null);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -104,14 +109,14 @@ public class DepotController {
      * @return a String indicating whether the depot was updated or not
      */
     @PostMapping("/update")
-    public ResponseEntity<ApiResponse<String>> update(@RequestBody Depot depot) {
+    public ResponseEntity<ApiResponse<Depot>> update(@RequestBody Depot depot) {
         logger.info("update");
-        try {
-            depotService.update(depot);
-            return ResponseEntity.ok(new ApiResponse<>("Depot updated"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
-        }
+            
+        Depot updatedDepot = depotService.update(depot);
+
+        ApiResponse<Depot> response = ResponseUtil.success("Depot updated", updatedDepot);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -122,12 +127,13 @@ public class DepotController {
     @GetMapping("/{id}/clone")
     public ResponseEntity<ApiResponse<String>> gitClone(@PathVariable Long id) {
         logger.info("clone");
-        try {
-            String msg = depotService.gitClone(id);
-            return ResponseEntity.ok(new ApiResponse<>(msg));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
-        }
+            
+        String msg = depotService.gitClone(id);
+        depotService.gitGetBranch(id);
+
+        ApiResponse<String> response = ResponseUtil.success("Depot cloned", msg);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -138,12 +144,12 @@ public class DepotController {
     @GetMapping("/{id}/pull")
     public ResponseEntity<ApiResponse<String>> gitPull(@PathVariable Long id) {
         logger.info("pull");
-        try {
-            String msg = depotService.gitPull(id);
-            return ResponseEntity.ok(new ApiResponse<>(msg));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
-        }
+        
+        String msg = depotService.gitPull(id);
+        depotService.gitGetBranch(id);
+        ApiResponse<String> response = ResponseUtil.success("Depot pulled", msg);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -154,12 +160,12 @@ public class DepotController {
     @GetMapping("/{id}/code")
     public ResponseEntity<ApiResponse<List<File>>> gitCode(@PathVariable Long id) {
         logger.info("code");
-        try {
-            List<File> files = depotService.gitCode(id);
-            return ResponseEntity.ok(new ApiResponse<>("Code displayed", files));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
-        }
+
+        List<File> files = depotService.gitCode(id);
+
+        ApiResponse<List<File>> response = ResponseUtil.success("Code displayed", files);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -170,12 +176,12 @@ public class DepotController {
     @GetMapping("/{id}/code/delete")
     public ResponseEntity<ApiResponse<String>> gitCodeDelete(@PathVariable Long id) {
         logger.info("codeDelete");
-        try {
-            String msg = depotService.gitDelete(id);
-            return ResponseEntity.ok(new ApiResponse<>(msg));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
-        }
+        
+        String msg = depotService.gitDelete(id);
+
+        ApiResponse<String> response = ResponseUtil.success("Code deleted", msg);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -183,15 +189,15 @@ public class DepotController {
      * @param id the unique identifier of the depot to analyze
      * @return a String indicating whether the depot was analyzed or not, and a Map containing the technologies used in the depot
      */
-    @GetMapping("{id}/code/technology")
-    public ResponseEntity<ApiResponse<Map<TechnologyType, List<String>>>> gitCodeTechnology(@PathVariable Long id) {
-        logger.info("codeTechnology");
-        try {
-            Map<TechnologyType, List<String>> technologies = depotService.gitCodeTechnology(id);
-            return ResponseEntity.ok(new ApiResponse<>("Code technology displayed", technologies));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
-        }
+    @GetMapping("{id}/technologies")
+    public ResponseEntity<ApiResponse<List<AbstractTechnology>>> gitCodeTechnologies(@PathVariable Long id) {
+        logger.info("depotTechnologies");
+        
+        List<AbstractTechnology> technologies = depotService.gitCodeTechnologies(id);
+
+        ApiResponse<List<AbstractTechnology>> response = ResponseUtil.success("Depot technologies displayed", technologies);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -199,15 +205,15 @@ public class DepotController {
      * @param id the unique identifier of the depot to analyze
      * @return a String indicating whether the depot was analyzed or not, and a Map containing the dependencies used in the depot
      */
-    @GetMapping("{id}/code/dependency")
-    public ResponseEntity<ApiResponse<Map<TechnologyType, Map<String, String>>>> gitCodeDependency(@PathVariable Long id) {
-        logger.info("codeDependency");
-        try {
-            Map<TechnologyType, Map<String, String>> dependencies = depotService.gitCodeDependency(id);
-            return ResponseEntity.ok(new ApiResponse<>("Code dependency displayed", dependencies));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(e.getMessage(), 400));
-        }
+    @GetMapping("{id}/dependencies")
+    public ResponseEntity<ApiResponse<Map<String, List<Dependency>>>> gitCodeDependencies(@PathVariable Long id) {
+        logger.info("depotDependencies");
+        
+        Map<String, List<Dependency>> dependencies = depotService.gitCodeDependencies(id);
+
+        ApiResponse<Map<String, List<Dependency>>> response = ResponseUtil.success("Depot dependencies displayed", dependencies);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
 }

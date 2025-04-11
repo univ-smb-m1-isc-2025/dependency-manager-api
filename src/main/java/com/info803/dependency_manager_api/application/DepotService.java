@@ -1,10 +1,13 @@
 package com.info803.dependency_manager_api.application;
 
-import com.info803.dependency_manager_api.infrastructure.persistence.Account;
-import com.info803.dependency_manager_api.infrastructure.persistence.AccountRepository;
-import com.info803.dependency_manager_api.infrastructure.persistence.Depot;
-import com.info803.dependency_manager_api.infrastructure.persistence.DepotRepository;
-import com.info803.dependency_manager_api.infrastructure.utils.TechnologyType;
+import com.info803.dependency_manager_api.domain.dependency.Dependency;
+import com.info803.dependency_manager_api.domain.git.AbstractGit;
+import com.info803.dependency_manager_api.domain.git.GitDetector;
+import com.info803.dependency_manager_api.domain.technology.AbstractTechnology;
+import com.info803.dependency_manager_api.infrastructure.persistence.account.Account;
+import com.info803.dependency_manager_api.infrastructure.persistence.account.AccountRepository;
+import com.info803.dependency_manager_api.infrastructure.persistence.depot.Depot;
+import com.info803.dependency_manager_api.infrastructure.persistence.depot.DepotRepository;
 
 import org.springframework.stereotype.Service;
 
@@ -17,10 +20,12 @@ import java.io.File;
 public class DepotService {
     private final DepotRepository depotRepository;
     private final AccountRepository accountRepository;
+    private final GitDetector gitDetector;
 
     public DepotService(DepotRepository depotRepository, AccountRepository accountRepository) {
         this.depotRepository = depotRepository;
         this.accountRepository = accountRepository;
+        this.gitDetector = new GitDetector();
     }
 
     public List<Depot> depotList() {
@@ -35,12 +40,13 @@ public class DepotService {
         return depot;
     }
 
-    public void create(Depot depot) {
+    public Depot create(Depot depot) {
         Optional<Account> account = accountRepository.findById(depot.getAccountId());
         if (!account.isPresent()) {
             throw new IllegalArgumentException("Account not found");
         }
         depotRepository.save(depot);
+        return depot;
     }
 
     public void delete(Long id) {
@@ -51,45 +57,52 @@ public class DepotService {
         depotRepository.deleteById(id);
     }
 
-    public void update(Depot depot) {
+    public Depot update(Depot depot) {
         Depot existingDepot = depotRepository.findById(depot.getId()).orElseThrow(() -> new IllegalArgumentException("Depot not found"));
-        
-        existingDepot.updateFrom(depot);
+
         depotRepository.save(existingDepot);
+        return existingDepot;
     }
 
     // -- Depot actions --
     public String gitClone(Long id) {
-        Optional<Depot> depot = depotRepository.findById(id);
-        if (!depot.isPresent()) {
+        Optional<Depot> optionalDepot = depotRepository.findById(id);
+        if (!optionalDepot.isPresent()) {
             throw new IllegalArgumentException("Depot not found");
         }
         try {
-            return depot.get().gitClone();
+            Depot depot = optionalDepot.get();
+            AbstractGit git = gitDetector.detectGit(depot.getUrl());
+            
+            return git.gitClone(depot);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
 
     public String gitPull(Long id) {
-        Optional<Depot> depot = depotRepository.findById(id);
-        if (!depot.isPresent()) {
+        Optional<Depot> optionalDepot = depotRepository.findById(id);
+        if (!optionalDepot.isPresent()) {
             throw new IllegalArgumentException("Depot not found");
         }
         try {
-            return depot.get().gitPull();
+            Depot depot = optionalDepot.get();
+            AbstractGit git = gitDetector.detectGit(depot.getUrl());
+            return git.gitPull(depot);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
 
     public List<File> gitCode(Long id) {
-        Optional<Depot> depot = depotRepository.findById(id);
-        if (!depot.isPresent()) {
+        Optional<Depot> optionalDepot = depotRepository.findById(id);
+        if (!optionalDepot.isPresent()) {
             throw new IllegalArgumentException("Depot not found");
         }
         try {
-            return depot.get().gitCode();
+            Depot depot = optionalDepot.get();
+            AbstractGit git = gitDetector.detectGit(depot.getUrl());
+            return git.gitCode(depot);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -97,36 +110,59 @@ public class DepotService {
     }
 
     public String gitDelete(Long id) {
-        Optional<Depot> depot = depotRepository.findById(id);
-        if (!depot.isPresent()) {
+        Optional<Depot> optionalDepot = depotRepository.findById(id);
+        if (!optionalDepot.isPresent()) {
             throw new IllegalArgumentException("Depot not found");
         }
         try { 
-            return depot.get().gitDelete();
+            Depot depot = optionalDepot.get();
+            AbstractGit git = gitDetector.detectGit(depot.getUrl());
+            return git.gitDelete(depot);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
 
-    public Map<TechnologyType, List<String>> gitCodeTechnology(Long id) {
-        Optional<Depot> depot = depotRepository.findById(id);
-        if (!depot.isPresent()) {
+    public List<AbstractTechnology> gitCodeTechnologies(Long id) {
+        Optional<Depot> optionalDepot = depotRepository.findById(id);
+        if (!optionalDepot.isPresent()) {
             throw new IllegalArgumentException("Depot not found");
         }
         try {
-            return depot.get().gitCodeTechnology();
+            Depot depot = optionalDepot.get();
+            AbstractGit git = gitDetector.detectGit(depot.getUrl());
+            return git.gitCodeTechnologies(depot);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
 
-    public Map<TechnologyType, Map<String, String>> gitCodeDependency(Long id) {
-        Optional<Depot> depot = depotRepository.findById(id);
-        if (!depot.isPresent()) {
+    public Map<String, List<Dependency>> gitCodeDependencies(Long id) {
+        Optional<Depot> optionalDepot = depotRepository.findById(id);
+        if (!optionalDepot.isPresent()) {
             throw new IllegalArgumentException("Depot not found");
         }
         try {
-            return depot.get().gitCodeDependency();
+            Depot depot = optionalDepot.get();
+            AbstractGit git = gitDetector.detectGit(depot.getUrl());
+            return git.gitCodeDependencies(depot);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    public String gitGetBranch(Long id) {
+        Optional<Depot> optionalDepot = depotRepository.findById(id);
+        if (!optionalDepot.isPresent()) {
+            throw new IllegalArgumentException("Depot not found");
+        }
+        try {
+            Depot depot = optionalDepot.get();
+            AbstractGit git = gitDetector.detectGit(depot.getUrl());
+            String branch = git.gitGetBranch(depot);
+            depot.setBranch(branch);
+            depotRepository.save(depot);
+            return branch;
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }

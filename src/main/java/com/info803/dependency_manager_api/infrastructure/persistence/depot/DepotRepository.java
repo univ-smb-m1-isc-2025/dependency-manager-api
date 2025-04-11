@@ -1,4 +1,4 @@
-package com.info803.dependency_manager_api.infrastructure.persistence;
+package com.info803.dependency_manager_api.infrastructure.persistence.depot;
 
 import java.util.List;
 import java.util.Optional;

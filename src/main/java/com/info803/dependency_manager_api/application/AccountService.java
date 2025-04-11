@@ -1,15 +1,18 @@
 package com.info803.dependency_manager_api.application;
 
-import com.info803.dependency_manager_api.infrastructure.persistence.Account;
-import com.info803.dependency_manager_api.infrastructure.persistence.AccountRepository;
-import com.info803.dependency_manager_api.infrastructure.persistence.Depot;
-import com.info803.dependency_manager_api.infrastructure.persistence.DepotRepository;
-import com.info803.dependency_manager_api.infrastructure.utils.EncryptionService;
+import com.info803.dependency_manager_api.infrastructure.persistence.account.Account;
+import com.info803.dependency_manager_api.infrastructure.persistence.account.AccountRepository;
+import com.info803.dependency_manager_api.infrastructure.persistence.depot.Depot;
+import com.info803.dependency_manager_api.infrastructure.persistence.depot.DepotRepository;
 
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
+
+import javax.security.auth.login.AccountException;
+import javax.security.auth.login.AccountNotFoundException;
 
 
 @Service
@@ -17,63 +20,56 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final DepotRepository depotRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AccountService(AccountRepository accountRepository, DepotRepository depotRepository) {
+    public AccountService(AccountRepository accountRepository, DepotRepository depotRepository, PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
         this.depotRepository = depotRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Account> accountList() {
         return accountRepository.findAll();
     }
 
-    public Optional<Account> account(Long accountId) {
+    public Optional<Account> account(Long accountId) throws AccountNotFoundException {
         Optional<Account> account = accountRepository.findById(accountId);
         if (!account.isPresent()) {
-            throw new IllegalArgumentException("Account not found");
+            throw new AccountNotFoundException("Account not found");
         }
         return account;
     }
 
-    public void create(Account account) {
-        Optional<Account> tempAccount = accountRepository.findByMail(account.getMail());
-        if (tempAccount.isPresent()) {
-            throw new IllegalArgumentException("Account already exists");
-        }
-        try {
-            account.setPassword(EncryptionService.hash(account.getPassword()));
-            accountRepository.save(new Account(account.getMail(), account.getPassword()));
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Account not created : " + e.getMessage());
-        }
+    public Optional<Account> me(String email) {
+        return accountRepository.findByEmail(email);
     }
 
-    public void delete(Long accountId) {
+    public void delete(Long accountId) throws AccountException {
         Optional<Account> account = accountRepository.findById(accountId);
         if (!account.isPresent()) {
-            throw new IllegalArgumentException("Account not found");
+            throw new AccountNotFoundException("Account not found");
         }
         try {
             accountRepository.delete(account.get());
         } catch (Exception e) {
-            throw new IllegalArgumentException("Account not deleted : " + e.getMessage());
+            throw new AccountException("Account not deleted : " + e.getMessage());
         }
     }
 
-    public void update(Account account) {
+    public Account update(Account account) {
         // Retrieve the account from the database
         Account existingAccount = accountRepository.findById(account.getId())
         .orElseThrow(() -> new IllegalArgumentException("Account not found"));
 
         // Check if the email is already in use by another account
-        Optional<Account> accountWithMail = accountRepository.findByMail(account.getMail());
+        Optional<Account> accountWithMail = accountRepository.findByEmail(account.getEmail());
         if (accountWithMail.isPresent() && !accountWithMail.get().getId().equals(existingAccount.getId())) {
             throw new IllegalArgumentException("Email already in use");
         }
         try {
-            account.setPassword(EncryptionService.hash(account.getPassword()));
-            existingAccount.updateFrom(account);
+            account.setPassword(passwordEncoder.encode(account.getPassword()));
             accountRepository.save(existingAccount);
+            return existingAccount;
         } catch (Exception e) {
             throw new IllegalArgumentException("Account not updated : " + e.getMessage());
         }
@@ -88,24 +84,6 @@ public class AccountService {
             return depotRepository.findByAccountId(accountId);
         } catch (Exception e) {
             throw new IllegalArgumentException("Depots not found : " + e.getMessage());
-        }
-    }
-
-    public boolean connect(String mail, String password) {
-        Optional<Account> account = accountRepository.findByMail(mail);
-        // Check if the account exists
-        if (!account.isPresent()) {
-            throw new IllegalArgumentException("Account not found with mail : " + mail);
-        }
-        // Check if the account is verified
-        if (account.get().getVerifiedAt() == null) {
-            throw new IllegalArgumentException("Account not verified");
-        }
-        // Check if the password is correct
-        try {
-            return EncryptionService.verifyHash(password, account.get().getPassword());
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Error while comparing password : " + e.getMessage());
         }
     }
 }
