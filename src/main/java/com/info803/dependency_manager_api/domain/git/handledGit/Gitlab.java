@@ -73,7 +73,7 @@ public class Gitlab extends AbstractGit {
     }
 
     @Override
-    public String gitCreatePullRequest(Depot depot, String branchName) {
+    public String gitCreatePullRequest(Depot depot, String newBranchName) {
         String owner = extractOwner(depot.getUrl());
         String repoName = extractRepoName(depot.getUrl());
         if (owner == null || repoName == null) {
@@ -81,7 +81,7 @@ public class Gitlab extends AbstractGit {
         }
         String namespacedPath = owner + "/" + repoName;
 
-        String pullRequestBranch = branchName;
+        String pullRequestBranch = newBranchName;
         String baseBranch = depot.getBranch();
         String mrTitle = "Dependency Manager: Update Dependencies";
         String mrDescription = "Automated merge request to update project dependencies.";

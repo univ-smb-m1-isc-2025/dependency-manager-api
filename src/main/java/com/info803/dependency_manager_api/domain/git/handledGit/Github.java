@@ -32,14 +32,14 @@ public class Github extends AbstractGit {
     }
 
     @Override
-    public String gitCreatePullRequest(Depot depot, String branchName) {
+    public String gitCreatePullRequest(Depot depot, String newBranchName) {
         try {
             String owner = extractOwner(depot.getUrl());
             String repoName = extractRepoName(depot.getUrl());
             if (owner == null || repoName == null) {
                  throw new IllegalArgumentException("Could not extract owner or repository name from URL: " + depot.getUrl());
             }
-            String pullRequestBranch = branchName;
+            String pullRequestBranch = newBranchName;
             String baseBranch = depot.getBranch();
             String prTitle = "Dependency Manager: Update Dependencies";
             String prBody = "Automated pull request to update project dependencies.";

@@ -67,7 +67,7 @@ public abstract class AbstractGit {
         try {
             // 1- Create a new branch from the master branch and commit the changes to it.
             // Create a new branch
-            String branchName = gitCreateBranch(depot);
+            String newBranchName = gitCreateBranch(depot);
 
             // Add the changes to the branch
             gitAdd(depot, ".");
@@ -78,7 +78,7 @@ public abstract class AbstractGit {
             gitPush(depot);     
             
             // 2- Create a pull request between the master branch and the new branch.
-            return gitCreatePullRequest(depot, branchName);
+            return gitCreatePullRequest(depot, newBranchName);
         } catch (Exception e) {
             throw new RuntimeException("Error during git pull request: " + e.getMessage(), e);
         }
