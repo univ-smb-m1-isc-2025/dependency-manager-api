@@ -9,20 +9,14 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.info803.dependency_manager_api.domain.dependency.Dependency;
-import com.info803.dependency_manager_api.domain.technology.handledTechnologies.JavaTechnology;
-import com.info803.dependency_manager_api.domain.technology.handledTechnologies.PHPTechnology;
-import com.info803.dependency_manager_api.domain.technology.handledTechnologies.PythonTechnology;
 
 @Service
 public class TechnologyScannerService {
 
-    private final static List<AbstractTechnology> technologies;
+    private final List<AbstractTechnology> technologies;
 
-    static {
-        technologies = new ArrayList<>();
-        technologies.add(new JavaTechnology());
-        technologies.add(new PythonTechnology());
-        technologies.add(new PHPTechnology());
+    public TechnologyScannerService(List<AbstractTechnology> technologies) {
+        this.technologies = technologies;
     }
 
     /**
@@ -32,9 +26,13 @@ public class TechnologyScannerService {
      * @return a map of TechnologyType to a list of file paths for each detected technology;
      *         an empty map if the directory does not exist or contains no recognizable technology files
      */
-    public static List<AbstractTechnology> detectTechnologies(String repoPath) {
+    public List<AbstractTechnology> detectTechnologies(String repoPath) {
     
         File repoDirectory = new File(repoPath);
+
+        if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
+            throw new RuntimeException("Cloned repository not found.");
+        }
             
         List<AbstractTechnology> detectedTechnologies = new ArrayList<>();
     
@@ -52,9 +50,10 @@ public class TechnologyScannerService {
         for (AbstractTechnology technology : technologies) {
             for (String file : technology.getFilesNames()) {
                 if (new File(repoPath, file).exists() && new File(repoPath, file).isFile()) {
-                    detectedTechnologies.add(technology);
-                    if (!technology.getFilesPaths().contains(new File(repoPath, file).getAbsolutePath())) {
-                        technology.getFilesPaths().add(new File(repoPath, file).getAbsolutePath());
+                    AbstractTechnology technologyCopy = technology.copy();
+                    detectedTechnologies.add(technologyCopy);
+                    if (!technologyCopy.getFilesPaths().contains(new File(repoPath, file).getAbsolutePath())) {
+                        technologyCopy.getFilesPaths().add(new File(repoPath, file).getAbsolutePath());
                     }
                 }
             }
@@ -64,7 +63,7 @@ public class TechnologyScannerService {
         return detectedTechnologies;
     }
 
-    public static Map<String, List<Dependency>> detectDependencies(List<AbstractTechnology> technologies) {
+    public Map<String, List<Dependency>> detectDependencies(List<AbstractTechnology> technologies) {
         Map<String, List<Dependency>> dependenciesMap = new HashMap<>();
         for (AbstractTechnology technology : technologies) {
             List<Dependency> dependencies = new ArrayList<>();

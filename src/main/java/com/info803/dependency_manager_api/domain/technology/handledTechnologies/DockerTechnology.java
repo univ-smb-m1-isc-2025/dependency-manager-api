@@ -20,5 +20,16 @@ public class DockerTechnology extends AbstractTechnology {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'extractDependencies'");
     }
+
+    @Override
+    public void updateDependencies(List<Dependency> dependencies) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateDependencies'");
+    }
+
+    @Override
+    public AbstractTechnology copy() {
+        return new DockerTechnology();
+    }
     
 }

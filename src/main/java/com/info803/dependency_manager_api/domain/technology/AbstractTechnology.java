@@ -17,10 +17,10 @@ import com.info803.dependency_manager_api.domain.dependency.Dependency;
 public abstract class AbstractTechnology {
 
     // Attributes
-    private String name;
-    private String dependencyKey;
-    private List<String> filesNames;
-    private List<String> filesPaths;
+    protected String name;
+    protected String dependencyKey;
+    protected List<String> filesNames;
+    protected List<String> filesPaths;
 
 
     // Constructors
@@ -66,5 +66,22 @@ public abstract class AbstractTechnology {
         return dependencies;
     }
 
+    /**
+     * Extracts the dependencies from a string
+     * @param content the string containing the dependencies
+     * @return a list of dependencies
+     */
     public abstract List<Dependency> extractDependencies(String content);
+
+    /**
+     * Updates the dependencies in the files given by the filesPaths attribute
+     * @param dependencies the dependencies to update
+     */
+    public abstract void updateDependencies(List<Dependency> dependencies);
+
+    /**
+     * Clones the technology to a new instance
+     * @return a clone of the technology
+     */
+    public abstract AbstractTechnology copy();
 }
