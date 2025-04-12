@@ -51,6 +51,8 @@ public class DepotService {
         }
         depot.setToken(encryptionService.encrypt(depot.getToken()));
         depotRepository.save(depot);
+        // Clone the depot after creation
+        gitClone(depot.getId());
         return depot;
     }
 
@@ -81,7 +83,9 @@ public class DepotService {
         try {
             Depot depot = getDepotById(id);
             AbstractGit specificGit = getSpecificGitForDepot(id);
-            return specificGit.executeGitAction(depot, specificGit::gitClone);
+            String msg = specificGit.executeGitAction(depot, specificGit::gitClone);
+            gitGetBranch(id);
+            return msg;
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }

@@ -130,7 +130,6 @@ public class DepotController {
         logger.info("clone");
             
         String msg = depotService.gitClone(id);
-        depotService.gitGetBranch(id);
 
         ApiResponse<String> response = ResponseUtil.success("Depot cloned", msg);
 
@@ -147,7 +146,7 @@ public class DepotController {
         logger.info("pull");
         
         String msg = depotService.gitPull(id);
-        depotService.gitGetBranch(id);
+        
         ApiResponse<String> response = ResponseUtil.success("Depot pulled", msg);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
