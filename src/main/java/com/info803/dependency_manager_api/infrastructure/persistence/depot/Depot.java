@@ -26,7 +26,10 @@ public class Depot {
     @Column(unique = false, nullable = false, length = 200)
     private String url;
 
-    @Column(unique = false, nullable = true, length = 200)
+    @Column(unique = false, nullable = false, length = 200)
+    private String username;
+
+    @Column(unique = false, nullable = false, length = 200)
     private String token;
 
     @Column(unique = false, nullable = false)
@@ -36,9 +39,10 @@ public class Depot {
     private String branch;
 
     // Constructors
-    public Depot(String name, String url, String token, Long accountId) {
+    public Depot(String name, String url, String username, String token, Long accountId) {
         this.name = name;
         this.url = url;
+        this.username = username;
         this.token = token;
         this.accountId = accountId;
         this.branch = null;

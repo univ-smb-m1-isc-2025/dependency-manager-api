@@ -216,4 +216,32 @@ public class DepotController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
+
+    /**
+     * Updates the dependencies of a depot
+     * @param id the unique identifier of the depot to update
+     * @return a String indicating whether the dependencies were updated or not
+     */
+    @GetMapping("/{id}/dependencies/update")
+    public ResponseEntity<ApiResponse<String>> gitCodeDependenciesUpdate(@PathVariable Long id) {
+        logger.info("depotDependenciesUpdate");
+
+        String msg = depotService.gitCodeDependenciesUpdate(id);
+
+        ApiResponse<String> response = ResponseUtil.success("Depot dependencies updated", msg);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/{id}/pullRequest")
+    public ResponseEntity<ApiResponse<String>> gitPullRequest(@PathVariable Long id) {
+        logger.info("pullRequest");
+
+        String msg = depotService.gitPullRequest(id);
+
+        ApiResponse<String> response = ResponseUtil.success("Pull request created", msg);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
