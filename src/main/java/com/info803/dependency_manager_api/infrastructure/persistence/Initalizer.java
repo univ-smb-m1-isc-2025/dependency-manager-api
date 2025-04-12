@@ -1,5 +1,7 @@
 package com.info803.dependency_manager_api.infrastructure.persistence;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import com.info803.dependency_manager_api.auth.AuthService;
@@ -19,6 +21,12 @@ class Initializer {
     private final DepotRepository depotRepository;
     private final DepotService depotService;
 
+    @Value("${encryption.githubToken}")
+    private Resource githubTokenFile;
+
+    @Value("${encryption.gitlabToken}")
+    private Resource gitlabTokenFile;
+
     public Initializer(AccountRepository accountRepository, AuthService authenticationService, DepotRepository depotRepository, DepotService depotService) {
         this.accountRepository = accountRepository;
         this.authenticationService = authenticationService;
@@ -28,6 +36,15 @@ class Initializer {
 
     @PostConstruct
     public void initialize() {
+
+        String githubToken = "";
+        String gitlabToken = "";
+        try {
+            githubToken = new String(githubTokenFile.getInputStream().readAllBytes());
+            gitlabToken = new String(gitlabTokenFile.getInputStream().readAllBytes());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         accountRepository.deleteAllInBatch();
 
@@ -39,19 +56,12 @@ class Initializer {
         if (depotRepository.findAll().isEmpty()) {
             // Get the first account
             Long accountId = accountRepository.findAll().get(0).getId();
-            // Github public repo
-            depotService.create(new Depot("Clement test GH", "https://github.com/Oziphos/test.git", "token", accountId));
-            // Gitlab 
-            String GITLAB_TOKEN = System.getenv("GITLAB_TOKEN");
-            depotService.create(new Depot("Clement test GL Laravel", "https://gitlab.com/Clement.Chevalier/testlaravel.git", GITLAB_TOKEN, accountId));
-            // Github BattleArenaGame
-            depotService.create(new Depot("BattleArenaGame", "https://github.com/Oziphos/BattleArenaGame.git", "token", accountId));
-            // Github GithubCredentialsAPI
-            depotService.create(new Depot("GithubCredentialsAPI", "https://github.com/Oziphos/GitHubCredentialsAPI.git", "token", accountId));
-            // Github this project
-            depotService.create(new Depot("DependencyManagerAPI", "https://github.com/univ-smb-m1-isc-2025/dependency-manager-api.git", "token", accountId));
-            // Github Test Project
-            depotService.create(new Depot("TestProject", "https://github.com/Oziphos/test.git", "token", accountId));
+            // Github 
+            depotService.create(new Depot("Clement test GH", "https://github.com/Oziphos/test.git", "Oziphos", githubToken, accountId));
+            // Github
+            depotService.create(new Depot("DependencyManagerAPI", "https://github.com/univ-smb-m1-isc-2025/dependency-manager-api.git", "univ-smb-m1-isc-2025", githubToken, accountId));
+            // Gitlab
+            depotService.create(new Depot("Clement SpringTest GL", "https://gitlab.com/Clement.Chevalier/springtest.git", "Clement.Chevalier", gitlabToken, accountId));
         }
     }
 
