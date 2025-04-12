@@ -105,14 +105,15 @@ public class DepotController {
     /**
      * Updates a depot
      * 
+     * @param id the unique identifier of the depot to update
      * @param depot the Depot object containing the name and description
      * @return a String indicating whether the depot was updated or not
      */
-    @PostMapping("/update")
-    public ResponseEntity<ApiResponse<Depot>> update(@RequestBody Depot depot) {
+    @PostMapping("/{id}/update")
+    public ResponseEntity<ApiResponse<Depot>> update(@PathVariable Long id, @RequestBody Depot depot) {
         logger.info("update");
             
-        Depot updatedDepot = depotService.update(depot);
+        Depot updatedDepot = depotService.update(id, depot);
 
         ApiResponse<Depot> response = ResponseUtil.success("Depot updated", updatedDepot);
 

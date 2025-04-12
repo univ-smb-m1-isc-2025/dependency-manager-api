@@ -56,9 +56,9 @@ public class AccountService {
         }
     }
 
-    public Account update(Account account) {
+    public Account update(Long accountId, Account account) {
         // Retrieve the account from the database
-        Account existingAccount = accountRepository.findById(account.getId())
+        Account existingAccount = accountRepository.findById(accountId)
         .orElseThrow(() -> new IllegalArgumentException("Account not found"));
 
         // Check if the email is already in use by another account

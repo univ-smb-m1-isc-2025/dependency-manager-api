@@ -98,14 +98,15 @@ public class AccountController {
     /**
      * Updates an account
      *
+     * @param id the unique identifier of the account to update
      * @param account the Account object containing the email and password
      * @return a String indicating whether the account was updated or not
      */
-    @PostMapping("/update")
-    public ResponseEntity<ApiResponse<Account>> update(@RequestBody Account account) {
+    @PostMapping("/{id}/update")
+    public ResponseEntity<ApiResponse<Account>> update(@PathVariable Long id, @RequestBody Account account) {
         logger.info("update");
 
-        Account updatedAccount = accountService.update(account);
+        Account updatedAccount = accountService.update(id, account);
 
         ApiResponse<Account> response = ResponseUtil.success("Account updated", updatedAccount);
 

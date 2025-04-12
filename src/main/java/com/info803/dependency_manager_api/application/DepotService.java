@@ -55,8 +55,8 @@ public class DepotService {
     }
 
 
-    public Depot update(Depot depot) {
-        Depot existingDepot = depotRepository.findById(depot.getId()).orElseThrow(() -> new IllegalArgumentException("Depot not found with id: " + depot.getId()));
+    public Depot update(Long id, Depot depot) {
+        Depot existingDepot = depotRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Depot not found with id: " + id));
         existingDepot.setToken(encryptionService.encrypt(depot.getToken()));
         depotRepository.save(existingDepot);
         return existingDepot;
