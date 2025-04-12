@@ -6,21 +6,83 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
+import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import com.info803.dependency_manager_api.infrastructure.persistence.depot.Depot;
+import com.info803.dependency_manager_api.config.EncryptionService;
 import com.info803.dependency_manager_api.domain.dependency.Dependency;
 import com.info803.dependency_manager_api.domain.technology.AbstractTechnology;
 import com.info803.dependency_manager_api.domain.technology.TechnologyScannerService;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public abstract class AbstractGit {
 
-    protected AbstractGit() {}
+    protected String gitApiUrl;
 
-    public abstract String gitPullRequest(Depot depot);
+    protected final EncryptionService encryptionService;
+    protected final TechnologyScannerService technologyScannerService;
+
+
+    protected AbstractGit(String gitApiUrl, EncryptionService encryptionService, TechnologyScannerService technologyScannerService) {
+        this.gitApiUrl = gitApiUrl;
+        this.encryptionService = encryptionService;
+        this.technologyScannerService = technologyScannerService;
+    }
+
+    public abstract String getName();
+
+    public abstract String gitCreatePullRequest(Depot depot, String branchName);
+
+    public abstract boolean isGit(String url);
+
+    public abstract String extractOwner(String url);
+
+    public abstract String extractRepoName(String url);
+
+    public <T> T executeGitAction(Depot depot, Function<Depot, T> gitAction) {
+        try {
+            depot.setToken(encryptionService.decrypt(depot.getToken()));
+            T result = gitAction.apply(depot);
+            depot.setToken(encryptionService.encrypt(depot.getToken()));
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    /**
+     * Creates a new branch, adds all changes, commits them, and pushes them to the remote repository.
+     * @param depot The Depot object representing the repository.
+     * @return A String indicating the result of the pull request operation.
+     * @throws Exception if an error occurs during the pull request operation.
+     */
+    public String gitPullRequest(Depot depot) {
+        try {
+            // 1- Create a new branch from the master branch and commit the changes to it.
+            // Create a new branch
+            String branchName = gitCreateBranch(depot);
+
+            // Add the changes to the branch
+            gitAdd(depot, ".");
+            // Commit the changes
+            gitCommit(depot, "Commit changes");
+
+            // Push the changes to the branch
+            gitPush(depot);     
+            
+            // 2- Create a pull request between the master branch and the new branch.
+            return gitCreatePullRequest(depot, branchName);
+        } catch (Exception e) {
+            throw new RuntimeException("Error during git pull request: " + e.getMessage(), e);
+        }
+    }
 
     /**
      * Clones the repository at the given URL and token into a directory at depots/<id>
@@ -29,12 +91,13 @@ public abstract class AbstractGit {
     public String gitClone(Depot depot) {
         String url = depot.getUrl();
         String path = depot.getPath();
+        String username = depot.getUsername();
         String token = depot.getToken();
         try {
             // Clone the repository
             Git.cloneRepository()
                 .setURI(url)
-                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
+                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, token))
                 .setDirectory(new File(path))
                 .call();
             return "Depot cloned successfully to " + path;
@@ -48,13 +111,17 @@ public abstract class AbstractGit {
      * @return a String indicating whether the depot was pulled or not
      * @throws RepositoryNotFoundException 
     */
-    public String gitPull(Depot depot) throws RepositoryNotFoundException {
+    public String gitPull(Depot depot) {
+        String username = depot.getUsername();
+        String token = depot.getToken();
         String path = depot.getPath();
         if (path == null) {
-            throw new RepositoryNotFoundException("Git pull : Path is null");
+            throw new RuntimeException("Git pull : Path is null");
         }
         try (Git git = Git.open(new File(path))) {
-            git.pull().call();
+            git.pull()
+                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, token))
+                .call();
             return "Depot pulled successfully to " + path;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -124,12 +191,7 @@ public abstract class AbstractGit {
         }
 
         try {
-            // Détecte la technologie utilisée dans le répertoire cloné
-            File repoDirectory = new File(path);
-            if (!repoDirectory.exists() || !repoDirectory.isDirectory()) {
-                throw new RepositoryNotFoundException("Cloned repository not found.");
-            }
-            return TechnologyScannerService.detectTechnologies(path);
+            return technologyScannerService.detectTechnologies(path);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -150,7 +212,7 @@ public abstract class AbstractGit {
             // Get technologies used in the cloned repository directory
             List<AbstractTechnology> technologies = gitCodeTechnologies(depot);
             // Get dependencies used in the cloned repository directory
-            return TechnologyScannerService.detectDependencies(technologies);
+            return technologyScannerService.detectDependencies(technologies);
             
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -170,8 +232,13 @@ public abstract class AbstractGit {
             throw new RuntimeException("Git add : Path is null");
         }
         try (Git git = Git.open(new File(path))) {
-            git.add().addFilepattern(filepattern).call();
-            return "Changes added successfully for pattern: " + filepattern;
+            // Check if there is a change to add
+            if (git.status().call().hasUncommittedChanges()) {
+                git.add().addFilepattern(filepattern).call();
+                return "Changes added successfully for pattern: " + filepattern;
+            } else {
+                throw new RuntimeException("No changes to add");
+            }
         } catch (RepositoryNotFoundException e) {
              throw e; // Re-throw specific exception
         } catch (Exception e) {
@@ -228,13 +295,14 @@ public abstract class AbstractGit {
      */
     public String gitPush(Depot depot) throws RepositoryNotFoundException {
         String path = depot.getPath();
+        String username = depot.getUsername();
         String token = depot.getToken();
         if (path == null) {
             throw new RuntimeException("Git push : Path is null");
         }
         try (Git git = Git.open(new File(path))) {
             git.push()
-               .setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
+               .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, token))
                .call();
             return "Changes pushed successfully to remote repository.";
         } catch (RepositoryNotFoundException e) {
@@ -254,20 +322,20 @@ public abstract class AbstractGit {
         String branch = depot.getBranch();
         String branchName = generateBranchName(depot);
 
-        // if (path == null) {
-        //     throw new RuntimeException("Git create branch : Path is null");
-        // }
+        if (path == null) {
+            throw new RuntimeException("Git create branch : Path is null");
+        }
         
-        // try (Git git = Git.open(new File(path))) {
-        //     git.checkout()
-        //         .setCreateBranch(true)
-        //         .setName(branchName)
-        //         .setStartPoint("origin/" + branch)
-        //         .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-        //         .call();
-        // } catch (Exception e) {
-        //     throw new RuntimeException("Error during git create branch: " + e.getMessage(), e);
-        // }
+        try (Git git = Git.open(new File(path))) {
+            git.checkout()
+                .setCreateBranch(true)
+                .setName(branchName)
+                .setStartPoint("origin/" + branch)
+                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                .call();
+        } catch (Exception e) {
+            throw new RuntimeException("Error during git create branch: " + e.getMessage(), e);
+        }
         return branchName;
     }
 
@@ -290,9 +358,30 @@ public abstract class AbstractGit {
         return "Checked out branch: " + branchName; 
     }
 
+    public String gitCodeDependenciesUpdate(Depot depot) {
+        String path = depot.getPath();
+        if (path == null) {
+            throw new RuntimeException("Git code dependencies update : Path is null");
+        }
+
+        try {
+            // Get technologies used in the cloned repository directory
+            List<AbstractTechnology> technologies = gitCodeTechnologies(depot);
+            // Get dependencies used in the cloned repository directory
+            Map<String, List<Dependency>> dependencies = technologyScannerService.detectDependencies(technologies);
+            // Update the dependencies
+            for (AbstractTechnology technology : technologies) {
+                technology.updateDependencies(dependencies.get(technology.getName()));
+            }
+            return "Dependencies updated successfully";
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     public String generateBranchName(Depot depot) {
         Date date = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String dateString = dateFormat.format(date);
         
         return "dependency-manager-fix-" + dateString;
