@@ -50,14 +50,16 @@ class Initializer {
 
         if (accountRepository.findAll().isEmpty()) {
             authenticationService.register(new RegisterAccountDTO("admin@mail.com", "admin"));
+            authenticationService.register(new RegisterAccountDTO("admin2@mail.com", "admin2"));
         }
 
         depotRepository.deleteAllInBatch();
         if (depotRepository.findAll().isEmpty()) {
             // Get the first account
             Long accountId = accountRepository.findAll().get(0).getId();
+            Long accountId2 = accountRepository.findAll().get(1).getId();
             // Github 
-            depotService.create(new Depot("Clement test GH", "https://github.com/Oziphos/test.git", "Oziphos", githubToken, accountId));
+            depotService.create(new Depot("Clement test GH", "https://github.com/Oziphos/test.git", "Oziphos", githubToken, accountId2));
             // Github
             depotService.create(new Depot("DependencyManagerAPI", "https://github.com/univ-smb-m1-isc-2025/dependency-manager-api.git", "univ-smb-m1-isc-2025", githubToken, accountId));
             // Gitlab
