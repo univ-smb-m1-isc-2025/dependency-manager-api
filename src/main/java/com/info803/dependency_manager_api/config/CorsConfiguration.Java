@@ -7,30 +7,34 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 @Configuration
-public class CorsConfiguration {
+public class CORSConfiguration {
 
     @Bean
     public CorsFilter corsFilter() {
-        // Créer une configuration CORS
-        CorsConfiguration corsConfig = new CorsConfiguration();
-        // Origins
-        corsConfig.addAllowedOrigin("http://localhost:4200");
-        corsConfig.addAllowedOrigin("http://localhost:8080");
-        corsConfig.addAllowedOrigin("http://www.dependency-manager.oups.net");
-        // Methods
-        corsConfig.addAllowedMethod("GET");
-        corsConfig.addAllowedMethod("POST");
-        corsConfig.addAllowedMethod("PUT");
-        corsConfig.addAllowedMethod("DELETE");
-        corsConfig.addAllowedMethod("OPTIONS");
-        // Headers
-        corsConfig.addAllowedHeader("*" );
-        // Allow credentials
-        corsConfig.setAllowCredentials(true); 
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedOrigin("http://localhost:4200");
+        config.addAllowedOrigin("http://localhost:8080");
+        config.addAllowedOrigin("https://www.dependency-manager.oups.net");
+        config.addAllowedMethod("GET");
+        config.addAllowedMethod("POST");
+        config.addAllowedMethod("PUT");
+        config.addAllowedMethod("DELETE");
+        config.addAllowedMethod("OPTIONS");
+        config.addAllowedMethod("PATCH");
+        config.addAllowedMethod("HEAD");
+        config.addAllowedHeader("Authorization");
+        config.addAllowedHeader("Content-Type");
+        config.addAllowedHeader("Accept");
+        config.addAllowedHeader("X-Requested-With");
+        config.addAllowedHeader("Origin");
+        config.addAllowedHeader("Access-Control-Request-Method");
+        config.addAllowedHeader("Access-Control-Request-Headers");
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfig);
+        source.registerCorsConfiguration("/**", config);
 
-        return new CorsFilter(source); 
+        return new CorsFilter(source);
     }
-}
+} 

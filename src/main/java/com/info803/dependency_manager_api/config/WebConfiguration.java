@@ -2,8 +2,10 @@ package com.info803.dependency_manager_api.config;
 
 import com.info803.dependency_manager_api.config.middleware.AccountOwnerMiddleware;
 import com.info803.dependency_manager_api.config.middleware.DepotOwnerMiddleware;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -35,5 +37,6 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .addPathPatterns("/accounts/{id}/**")
                 .excludePathPatterns("/accounts/me/**");
         logger.info("Registered AccountOwnerMiddleware for /accounts/{id}/**");
-    }
+    } 
+
 }
