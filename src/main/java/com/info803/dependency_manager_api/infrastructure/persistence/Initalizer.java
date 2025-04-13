@@ -49,8 +49,8 @@ class Initializer {
         accountRepository.deleteAllInBatch();
 
         if (accountRepository.findAll().isEmpty()) {
-            authenticationService.register(new RegisterAccountDTO("admin@mail.com", "admin"));
-            authenticationService.register(new RegisterAccountDTO("admin2@mail.com", "admin2"));
+            authenticationService.register(new RegisterAccountDTO("admin@mail.com", "password"));
+            authenticationService.register(new RegisterAccountDTO("admin2@mail.com", "password"));
         }
 
         depotRepository.deleteAllInBatch();
