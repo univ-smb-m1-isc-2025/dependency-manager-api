@@ -32,7 +32,7 @@ public class DepotOwnerMiddleware implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) throws Exception {
-        logger.debug("DepotOwnerInterceptor preHandle for request URI: {}", request.getRequestURI());
+        logger.info("DepotOwnerInterceptor preHandle for request URI: {}", request.getRequestURI());
 
         // Extract path variables
         @SuppressWarnings("unchecked") // Standard way to get path variables
@@ -54,7 +54,7 @@ public class DepotOwnerMiddleware implements HandlerInterceptor {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof Account)) {
                 // Should be handled by JwtAuthenticationFilter, but double-check
-                logger.warn("User not authenticated or authentication principal is not Account type for depot access.");
+                logger.info("User not authenticated or authentication principal is not Account type for depot access.");
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized: Authentication required.");
                 return false;
             }
@@ -62,7 +62,7 @@ public class DepotOwnerMiddleware implements HandlerInterceptor {
             Long authenticatedAccountId = authenticatedAccount.getId();
 
              if (authenticatedAccountId == null) {
-                 logger.error("Authenticated account ID is null. Cannot perform ownership check.");
+                 logger.info("Authenticated account ID is null. Cannot perform ownership check.");
                  response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error during authentication processing.");
                  return false;
              }
@@ -79,24 +79,24 @@ public class DepotOwnerMiddleware implements HandlerInterceptor {
             Depot depot = depotOpt.get();
             Long depotAccountId = depot.getAccountId();
 
-            logger.debug("Checking ownership for Depot ID: {}. Depot Account ID: {}. Authenticated Account ID: {}", depotId, depotAccountId, authenticatedAccountId);
+            logger.info("Checking ownership for Depot ID: {}. Depot Account ID: {}. Authenticated Account ID: {}", depotId, depotAccountId, authenticatedAccountId);
 
              if (depotAccountId == null) {
-                 logger.error("Depot {} has a null accountId. Cannot perform ownership check.", depotId);
+                 logger.warn("Depot {} has a null accountId. Cannot perform ownership check.", depotId);
                  response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error: Depot configuration issue.");
                  return false;
              }
 
             // Compare the depot's account ID with the authenticated user's ID
             if (!depotAccountId.equals(authenticatedAccountId)) {
-                logger.warn("Forbidden access attempt: Authenticated user ID {} does not match Depot {} owner ID {}", authenticatedAccountId, depotId, depotAccountId);
+                logger.info("Forbidden access attempt: Authenticated user ID {} does not match Depot {} owner ID {}", authenticatedAccountId, depotId, depotAccountId);
                 response.sendError(HttpStatus.FORBIDDEN.value(), "Forbidden: You do not have permission to access this depot.");
                 return false; // User does not own the depot
             }
 
-            logger.debug("Access granted for Depot ID: {}. User ID: {}", depotId, authenticatedAccountId);
+            logger.info("Access granted for Depot ID: {}. User ID: {}", depotId, authenticatedAccountId);
         } else {
-            logger.debug("Request URI {} does not match /depots/{id}/..., skipping ownership check.", request.getRequestURI());
+            logger.info("Request URI {} does not match /depots/{id}/..., skipping ownership check.", request.getRequestURI());
         }
 
         return true; // Proceed with the request

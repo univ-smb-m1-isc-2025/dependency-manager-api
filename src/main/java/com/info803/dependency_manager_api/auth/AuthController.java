@@ -11,6 +11,8 @@ import com.info803.dependency_manager_api.infrastructure.persistence.account.Acc
 import com.info803.dependency_manager_api.adapters.api.response.ApiResponse;
 import com.info803.dependency_manager_api.adapters.api.response.ResponseUtil;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class AuthController {
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final JwtService jwtService;
     private final AuthService authenticationService;
 
@@ -32,6 +36,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponseDTO>> register(@Valid @RequestBody RegisterAccountDTO registerAccountDTO) {
+        logger.info("register");
         Account registeredAccount = authenticationService.register(registerAccountDTO);
         String jwtToken = jwtService.generateToken(registeredAccount);
 
@@ -43,6 +48,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponseDTO>> authenticate(@Valid @RequestBody LoginAccountDTO loginAccountDTO) {
+        logger.info("login");
         Account authenticatedAccount = authenticationService.authenticate(loginAccountDTO);
         String jwtToken = jwtService.generateToken(authenticatedAccount);
 
@@ -54,6 +60,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout() {
+        logger.info("logout");
         authenticationService.logout();
         ApiResponse<Void> response = ResponseUtil.success("Logged out successfully.", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
