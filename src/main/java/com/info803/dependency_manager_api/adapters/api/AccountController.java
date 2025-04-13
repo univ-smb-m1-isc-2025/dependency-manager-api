@@ -12,11 +12,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -84,7 +86,7 @@ public class AccountController {
      * @param id the unique identifier of the account to delete
      * @return a String indicating whether the account was deleted or not
      */
-    @GetMapping("/{id}/delete")
+    @DeleteMapping("/{id}/delete")
     public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) throws Exception {
         logger.info("delete"); 
 
@@ -102,7 +104,7 @@ public class AccountController {
      * @param account the Account object containing the email and password
      * @return a String indicating whether the account was updated or not
      */
-    @PostMapping("/{id}/update")
+    @PutMapping("/{id}/update")
     public ResponseEntity<ApiResponse<Account>> update(@PathVariable Long id, @RequestBody Account account) {
         logger.info("update");
 

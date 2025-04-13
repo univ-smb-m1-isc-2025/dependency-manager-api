@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.io.File;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -91,7 +93,7 @@ public class DepotController {
      * @param id the unique identifier of the depot to delete
      * @return a String indicating whether the depot was deleted or not
      */
-    @GetMapping("/{id}/delete")
+    @DeleteMapping("/{id}/delete")
     public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) {
         logger.info("delete");
 
@@ -109,7 +111,7 @@ public class DepotController {
      * @param depot the Depot object containing the name and description
      * @return a String indicating whether the depot was updated or not
      */
-    @PostMapping("/{id}/update")
+    @PutMapping("/{id}/update")
     public ResponseEntity<ApiResponse<Depot>> update(@PathVariable Long id, @RequestBody Depot depot) {
         logger.info("update");
             
@@ -173,7 +175,7 @@ public class DepotController {
      * @param id the unique identifier of the depot to delete
      * @return a String indicating whether the code was deleted or not
      */
-    @GetMapping("/{id}/code/delete")
+    @DeleteMapping("/{id}/code/delete")
     public ResponseEntity<ApiResponse<String>> gitCodeDelete(@PathVariable Long id) {
         logger.info("codeDelete");
         
@@ -222,7 +224,7 @@ public class DepotController {
      * @param id the unique identifier of the depot to update
      * @return a String indicating whether the dependencies were updated or not
      */
-    @GetMapping("/{id}/dependencies/update")
+    @PutMapping("/{id}/dependencies/update")
     public ResponseEntity<ApiResponse<String>> gitCodeDependenciesUpdate(@PathVariable Long id) {
         logger.info("depotDependenciesUpdate");
 
@@ -234,7 +236,7 @@ public class DepotController {
     }
 
 
-    @GetMapping("/{id}/pullRequest")
+    @PostMapping("/{id}/pullRequest")
     public ResponseEntity<ApiResponse<String>> gitPullRequest(@PathVariable Long id) {
         logger.info("pullRequest");
 
