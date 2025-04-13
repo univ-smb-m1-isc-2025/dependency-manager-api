@@ -51,4 +51,11 @@ public class AuthController {
         ApiResponse<AuthResponseDTO> response = ResponseUtil.success("Account authenticated successfully.", responseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout() {
+        authenticationService.logout();
+        ApiResponse<Void> response = ResponseUtil.success("Logged out successfully.", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
