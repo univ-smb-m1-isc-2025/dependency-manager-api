@@ -8,6 +8,7 @@ target/
 .env
 /src/main/resources/jwt/
 /src/main/resources/tokens/
+src/main/java/com/info803/dependency_manager_api/infrastructure/persistence/Initalizer.java
 
 ### STS ###
 .apt_generated
