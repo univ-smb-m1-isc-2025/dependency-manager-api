@@ -1,7 +1,6 @@
 package com.info803.dependency_manager_api.infrastructure.persistence;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import com.info803.dependency_manager_api.auth.AuthService;
