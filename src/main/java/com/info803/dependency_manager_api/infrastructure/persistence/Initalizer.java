@@ -22,10 +22,10 @@ class Initializer {
     private final DepotService depotService;
 
     @Value("${encryption.githubToken}")
-    private Resource githubTokenFile;
+    private String githubToken;
 
     @Value("${encryption.gitlabToken}")
-    private Resource gitlabTokenFile;
+    private String gitlabToken;
 
     public Initializer(AccountRepository accountRepository, AuthService authenticationService, DepotRepository depotRepository, DepotService depotService) {
         this.accountRepository = accountRepository;
@@ -36,15 +36,6 @@ class Initializer {
 
     @PostConstruct
     public void initialize() {
-
-        String githubToken = "";
-        String gitlabToken = "";
-        try {
-            githubToken = new String(githubTokenFile.getInputStream().readAllBytes());
-            gitlabToken = new String(gitlabTokenFile.getInputStream().readAllBytes());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
         accountRepository.deleteAllInBatch();
 

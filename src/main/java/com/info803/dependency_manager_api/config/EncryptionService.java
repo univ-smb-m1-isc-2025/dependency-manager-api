@@ -5,7 +5,6 @@ import jakarta.annotation.PostConstruct;
 import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Cipher;
@@ -15,14 +14,14 @@ import javax.crypto.spec.SecretKeySpec;
 public class EncryptionService {
 
     @Value("${security.jwt.secret-key}")
-    private Resource secretKeyFile;
+    private String secretKey;
 
     private SecretKeySpec aesKeySpec;
 
     @PostConstruct
     private void init() {
         try {
-            byte[] keyBytes = Base64.getDecoder().decode(secretKeyFile.getContentAsByteArray());
+            byte[] keyBytes = Base64.getDecoder().decode(secretKey);
             aesKeySpec = new SecretKeySpec(keyBytes, 0, 16, "AES"); // Use first 128 bits (or 256 if supported)
         } catch (Exception e) {
             throw new RuntimeException("Error loading encryption key : " + e.getMessage());

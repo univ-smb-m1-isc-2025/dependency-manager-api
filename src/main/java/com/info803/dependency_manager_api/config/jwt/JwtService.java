@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +21,10 @@ import javax.crypto.SecretKey;
 @Service
 public class JwtService {
     @Value("${security.jwt.secret-key}")
-    private Resource secretKeyFile;
+    private String secretKey;
 
     @Value("${security.jwt.expiration-time}")
-    private long jwtExpiration;
+    private long jwtExpiration; 
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -86,7 +85,7 @@ public class JwtService {
 
     private SecretKey getSignInKey() {
         try {
-            byte[] keyBytes = Base64.getDecoder().decode(secretKeyFile.getContentAsByteArray());
+            byte[] keyBytes = Base64.getDecoder().decode(secretKey);
             return Keys.hmacShaKeyFor(keyBytes);
         } catch (Exception e) {
             throw new RuntimeException(e);
