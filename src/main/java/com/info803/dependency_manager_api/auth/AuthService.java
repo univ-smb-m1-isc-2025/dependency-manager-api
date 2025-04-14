@@ -32,7 +32,7 @@ public class AuthService {
 
     public Account register(RegisterAccountDTO input) {
         if (accountRepository.existsByEmail(input.getEmail())) {
-            throw new RuntimeException("E-mail already in use.");
+            throw new BadCredentialsException("E-mail already in use.");
         }
 
         Account account = new Account(
