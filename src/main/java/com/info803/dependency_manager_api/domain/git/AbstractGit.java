@@ -38,6 +38,8 @@ public abstract class AbstractGit {
 
     public abstract String getName();
 
+    public abstract String getIconUrl();
+
     public abstract String gitCreatePullRequest(Depot depot, String branchName);
 
     public abstract boolean isGit(String url);

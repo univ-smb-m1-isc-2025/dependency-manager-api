@@ -32,6 +32,11 @@ public class Github extends AbstractGit {
     }
 
     @Override
+    public String getIconUrl() {
+        return "https://github.com/favicon.ico";
+    }
+
+    @Override
     public String gitCreatePullRequest(Depot depot, String newBranchName) {
         try {
             String owner = extractOwner(depot.getUrl());

@@ -34,6 +34,11 @@ public class Gitlab extends AbstractGit {
     }
 
     @Override
+    public String getIconUrl() {
+        return "https://gitlab.com/favicon.ico";
+    }
+
+    @Override
     public boolean isGit(String url) {
         return url != null && url.contains("gitlab.com");
     }
