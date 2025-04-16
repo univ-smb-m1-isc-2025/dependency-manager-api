@@ -228,7 +228,7 @@ public class DepotController {
     public ResponseEntity<ApiResponse<String>> gitCodeDependenciesUpdate(@PathVariable Long id) {
         logger.info("depotDependenciesUpdate");
 
-        String msg = depotService.gitCodeDependenciesUpdate(id);
+        String msg = depotService.updateDepotDependencies(id);
 
         ApiResponse<String> response = ResponseUtil.success("Depot dependencies updated", msg);
 

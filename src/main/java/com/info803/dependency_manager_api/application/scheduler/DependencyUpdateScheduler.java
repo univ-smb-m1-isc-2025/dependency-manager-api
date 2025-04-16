@@ -47,27 +47,9 @@ public class DependencyUpdateScheduler {
             logger.info("Processing depot ID: {}, Name: {}", depotId, depotName);
 
             try {
-                // 1. Pull latest changes
-                logger.info("Pulling latest changes for depot {}", depotId);
-                String pullResult = depotService.gitPull(depotId);
-                logger.info("Pull result for depot {}: {}", depotId, pullResult);
-
-                // 2. Update dependencies
-                logger.info("Updating dependencies for depot {}", depotId);
-                String updateResult = depotService.gitCodeDependenciesUpdate(depotId);
-                logger.info("Dependency update result for depot {}: {}", depotId, updateResult);
-                // Petite pause pour laisser le temps au commit potentiel de l'update d'être pris en compte avant le PR
-                Thread.sleep(5000); // 5 secondes, à ajuster si nécessaire
-
-                // 3. Create Pull Request
-                logger.info("Creating pull request for depot {}", depotId);
-                String prResult = depotService.gitPullRequest(depotId);
-                logger.info("Pull request result for depot {}: {}", depotId, prResult);
-
-                logger.info("Successfully processed depot ID: {}, Name: {}", depotId, depotName);
+                depotService.updateDepotDependencies(depotId);
 
             } catch (Exception e) {
-                // Log l'erreur mais continue avec le dépôt suivant
                 logger.error("Failed to process depot ID: {}, Name: {}. Error: {}", depotId, depotName, e.getMessage(), e);
             }
              // Ajouter une pause entre les dépôts pour ne pas surcharger les API Git ou le système
@@ -75,8 +57,8 @@ public class DependencyUpdateScheduler {
                 Thread.sleep(10000); // 10 secondes entre chaque dépôt, à ajuster
             } catch (InterruptedException ie) {
                 logger.warn("Scheduler interrupted during sleep between depots.");
-                Thread.currentThread().interrupt(); // Rétablir le statut d'interruption
-                break; // Sortir de la boucle si le thread est interrompu
+                Thread.currentThread().interrupt();
+                break; 
             }
         }
 

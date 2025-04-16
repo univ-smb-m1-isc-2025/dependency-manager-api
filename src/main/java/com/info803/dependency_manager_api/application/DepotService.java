@@ -12,10 +12,12 @@ import com.info803.dependency_manager_api.infrastructure.persistence.depot.Depot
 
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.io.File;
+import java.text.SimpleDateFormat;
 
 @Service
 public class DepotService {
@@ -49,19 +51,46 @@ public class DepotService {
         if (!account.isPresent()) {
             throw new IllegalArgumentException("Account not found with id: " + depot.getAccountId());
         }
-        depot.setToken(encryptionService.encrypt(depot.getToken()));
-        depotRepository.save(depot);
-        // Clone the depot after creation
-        gitClone(depot.getId());
-        return depot;
+        try {
+            depot.setToken(encryptionService.encrypt(depot.getToken()));
+    
+            // Get git icon
+            AbstractGit specificGit = gitScannerService.detectGit(depot.getUrl());
+
+            if (specificGit == null) {
+                throw new IllegalArgumentException("Git not found for url: " + depot.getUrl());
+            }
+            depot.setGitIconUrl(specificGit.getIconUrl());
+    
+            // Save the depot
+            depotRepository.save(depot);
+            // Clone the depot after creation
+            gitClone(depot.getId());
+            return depot;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
 
     public Depot update(Long id, Depot depot) {
         Depot existingDepot = depotRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Depot not found with id: " + id));
-        existingDepot.setToken(encryptionService.encrypt(depot.getToken()));
-        depotRepository.save(existingDepot);
-        return existingDepot;
+        try {
+            existingDepot.setToken(encryptionService.encrypt(depot.getToken()));
+                
+            AbstractGit specificGit = gitScannerService.detectGit(depot.getUrl());
+
+            if (specificGit == null) {
+                throw new IllegalArgumentException("Git not found for url: " + depot.getUrl());
+            }
+            depot.setGitIconUrl(specificGit.getIconUrl());
+
+            depotRepository.save(existingDepot);
+            return existingDepot;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     public void delete(Long id) {
@@ -75,6 +104,37 @@ public class DepotService {
     private Depot getDepotById(Long id) {
          return depotRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Depot not found with id: " + id));
+    }
+
+    public String updateLastDependenciesUpdateDate(Long id) {
+        try {
+            Depot depot = getDepotById(id);
+            Date now = new Date(); // Format: "yyyy-MM-dd HH:mm:ss"
+            depot.setLastDependenciesUpdate(now);
+            depotRepository.save(depot);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            return dateFormat.format(now);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    public String updateDepotDependencies(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Depot id is null");
+        }
+
+        try {
+            gitPull(id);
+
+            gitCodeDependenciesUpdate(id);
+
+            Thread.sleep(5000);
+
+            return gitPullRequest(id);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
 
@@ -164,7 +224,12 @@ public class DepotService {
         try {
             Depot depot = getDepotById(id);
             AbstractGit specificGit = getSpecificGitForDepot(id);
-            return specificGit.executeGitAction(depot, specificGit::gitPullRequest);
+            
+            String res =  specificGit.executeGitAction(depot, specificGit::gitPullRequest);
+
+            updateLastDependenciesUpdateDate(id);
+
+            return res;
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
