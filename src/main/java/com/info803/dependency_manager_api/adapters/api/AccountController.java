@@ -3,9 +3,14 @@ package com.info803.dependency_manager_api.adapters.api;
 
 import com.info803.dependency_manager_api.infrastructure.persistence.account.Account;
 import com.info803.dependency_manager_api.infrastructure.persistence.depot.Depot;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.account.AccountEmailAlreadyInUseException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.account.AccountUpdateException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.depot.DepotNotFoundException;
 import com.info803.dependency_manager_api.adapters.api.response.ApiResponse;
 import com.info803.dependency_manager_api.adapters.api.response.ResponseUtil;
 import com.info803.dependency_manager_api.application.AccountService;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.account.AccountDeleteException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.account.AccountNotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,9 +59,10 @@ public class AccountController {
      *
      * @param id the unique identifier of the account to retrieve
      * @return the Account object with the given id
+     * @throws AccountNotFoundException
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Optional<Account>>> account(@PathVariable Long id) throws Exception {
+    public ResponseEntity<ApiResponse<Optional<Account>>> account(@PathVariable Long id) throws AccountNotFoundException {
         logger.info("account");
         
         Optional<Account> account = accountService.account(id);  
@@ -67,8 +73,15 @@ public class AccountController {
 
     }
 
+    /**
+     * Retrieves a single account by its email.
+     *
+     * @param authentication the email of the account to retrieve
+     * @return the Account object with the given email
+     * @throws AccountNotFoundException
+     */
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<Optional<Account>>> me(final Authentication authentication) {
+    public ResponseEntity<ApiResponse<Optional<Account>>> me(final Authentication authentication) throws AccountNotFoundException {
         logger.info("me");
             
         Optional<Account> account = accountService.me(authentication.getName());  
@@ -84,9 +97,11 @@ public class AccountController {
      *
      * @param id the unique identifier of the account to delete
      * @return a String indicating whether the account was deleted or not
+     * @throws AccountDeleteException 
+     * @throws AccountNotFoundException
      */
     @DeleteMapping("/{id}/delete")
-    public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) throws Exception {
+    public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) throws AccountDeleteException, AccountNotFoundException {
         logger.info("delete"); 
 
         accountService.delete(id);  
@@ -102,9 +117,12 @@ public class AccountController {
      * @param id the unique identifier of the account to update
      * @param account the Account object containing the email and password
      * @return a String indicating whether the account was updated or not
+     * @throws AccountNotFoundException
+     * @throws AccountEmailAlreadyInUseException
+     * @throws AccountUpdateException
      */
     @PutMapping("/{id}/update")
-    public ResponseEntity<ApiResponse<Account>> update(@PathVariable Long id, @RequestBody Account account) {
+    public ResponseEntity<ApiResponse<Account>> update(@PathVariable Long id, @RequestBody Account account) throws AccountUpdateException, AccountEmailAlreadyInUseException, AccountNotFoundException {
         logger.info("update");
 
         Account updatedAccount = accountService.update(id, account);
@@ -119,9 +137,11 @@ public class AccountController {
      *
      * @param id the unique identifier of the account to retrieve depots for
      * @return a list of all Depot objects owned by the account
+     * @throws AccountNotFoundException
+     * @throws DepotNotFoundException
      */
     @GetMapping("/{id}/depots")
-    public ResponseEntity<ApiResponse<List<Depot>>> accountDepots(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<List<Depot>>> accountDepots(@PathVariable Long id) throws AccountNotFoundException, DepotNotFoundException {
         logger.info("accountDepots");
         
         List<Depot> depots = accountService.accountDepots(id);
@@ -131,8 +151,16 @@ public class AccountController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     * Retrieves all depots owned by the current user
+     *
+     * @param authentication the email of the account to retrieve depots for
+     * @return a list of all Depot objects owned by the account
+     * @throws AccountNotFoundException
+     * @throws DepotNotFoundException
+     */
     @GetMapping("/me/depots")
-    public ResponseEntity<ApiResponse<List<Depot>>> meDepots(final Authentication authentication) {
+    public ResponseEntity<ApiResponse<List<Depot>>> meDepots(final Authentication authentication) throws AccountNotFoundException, DepotNotFoundException {
         logger.info("meDepots");
 
         Optional<Account> account = accountService.me(authentication.getName());

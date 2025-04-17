@@ -1,5 +1,8 @@
 package com.info803.dependency_manager_api.domain.dependency;
 
+import com.info803.dependency_manager_api.adapters.api.exception.customs.dependency.DependencyDetectLatestVersionException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.dependency.DependencyFetchingException;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -26,5 +29,5 @@ public abstract class Dependency {
         this.latest = latest;
     }
 
-    public abstract void detectLatestVersion();
+    public abstract void detectLatestVersion() throws DependencyDetectLatestVersionException, DependencyFetchingException;
 }
