@@ -314,19 +314,6 @@ public class DepotService {
         } catch (Exception e) {
             throw new GitNotFoundException("Error getting specific git: " + e.getMessage(), e);
         }
-    private AbstractGit getSpecificGitForDepot(Long id) throws GitNotFoundException {
-        try {
-            Depot depot = getDepotById(id);
-
-            AbstractGit specificGit = gitScannerService.detectGit(depot.getUrl());
-            if (specificGit == null) {
-                throw new GitNotFoundException("Unsupported Git provider for URL: " + depot.getUrl());
-            }
-
-            return specificGit;
-        } catch (Exception e) {
-            throw new GitNotFoundException("Error getting specific git: " + e.getMessage(), e);
-        }
     }
 
 }
