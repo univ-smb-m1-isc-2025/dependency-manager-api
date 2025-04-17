@@ -3,6 +3,7 @@ package com.info803.dependency_manager_api.domain.git.handledGit;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitPullRequestException;
 import com.info803.dependency_manager_api.config.EncryptionService;
 import com.info803.dependency_manager_api.domain.git.AbstractGit;
 import com.info803.dependency_manager_api.domain.technology.TechnologyScannerService;
@@ -15,7 +16,6 @@ import org.kohsuke.github.GitHubBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.stream.Collectors;
 
 @Component
 public class Github extends AbstractGit {
@@ -37,7 +37,7 @@ public class Github extends AbstractGit {
     }
 
     @Override
-    public String gitCreatePullRequest(Depot depot, String newBranchName) {
+    public String gitCreatePullRequest(Depot depot, String newBranchName) throws GitPullRequestException {
         try {
             String owner = extractOwner(depot.getUrl());
             String repoName = extractRepoName(depot.getUrl());
@@ -53,19 +53,13 @@ public class Github extends AbstractGit {
             GitHub github = new GitHubBuilder().withEndpoint(this.gitApiUrl).withOAuthToken(token).build();
             GHRepository repo = github.getRepository(owner + "/" + repoName);
 
-            try (Git git = Git.open(new File(depot.getPath()))) {
-                if (git.branchList().call().stream().noneMatch(ref -> ref.getName().endsWith("/" + pullRequestBranch))) {
-                     throw new RuntimeException("Source branch '" + pullRequestBranch + "' does not exist locally in repository path: " + depot.getPath() +". Local branches : " + git.branchList().call().stream().map(ref -> ref.getName()).collect(Collectors.joining(", ")));
-                }
-            } catch (GitAPIException | IOException e) {
-                throw new RuntimeException("Failed to verify local branches: " + e.getMessage(), e);
+            if (!checkBranchExists(depot, pullRequestBranch)) {
+                throw new GitPullRequestException("Source branch '" + pullRequestBranch + "' does not exist locally in repository path: " + depot.getPath());
             }
 
-            repo.createPullRequest(prTitle, pullRequestBranch, baseBranch, prBody);
-
-            return "Pull request created successfully on GitHub for branch '" + pullRequestBranch + "' into '" + baseBranch + "'.";
+            return createMergeRequest(repo, pullRequestBranch, baseBranch, prTitle, prBody);
         } catch (Exception e) {
-            throw new RuntimeException("An error occurred during pull request creation: " + e.getMessage(), e);
+            throw new GitPullRequestException("An error occurred during pull request creation: " + e.getMessage(), e);
         }
     }
 
@@ -94,5 +88,23 @@ public class Github extends AbstractGit {
             return repoPart.endsWith(".git") ? repoPart.substring(0, repoPart.length() - 4) : repoPart;
         }
         return null;
+    }
+
+    // -- Private methods --
+    private boolean checkBranchExists(Depot depot, String pullRequestBranch) throws GitPullRequestException {
+        try (Git git = Git.open(new File(depot.getPath()))) {
+            return git.branchList().call().stream().anyMatch(ref -> ref.getName().endsWith("/" + pullRequestBranch));
+        } catch (GitAPIException | IOException e) {
+            throw new GitPullRequestException("Error during git branch check: " + e.getMessage(), e);
+        }
+    }
+
+    private String createMergeRequest(GHRepository repo, String pullRequestBranch, String baseBranch, String mrTitle, String mrDescription) throws GitPullRequestException {
+        try {
+            repo.createPullRequest(mrTitle, pullRequestBranch, baseBranch, mrDescription);
+            return "Pull request created successfully on GitHub for branch '" + pullRequestBranch + "' into '" + baseBranch + "'.";
+        } catch (Exception e) {
+            throw new GitPullRequestException("Failed to create GitHub pull request: " + e.getMessage() + " for branch '" + pullRequestBranch + "' into '" + baseBranch + "'.", e);
+        }
     }
 }

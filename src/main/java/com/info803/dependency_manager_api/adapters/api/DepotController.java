@@ -30,6 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.security.auth.login.AccountNotFoundException;
+
 import java.io.File;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -68,9 +71,10 @@ public class DepotController {
      * 
      * @param id the unique identifier of the depot to retrieve
      * @return the Depot object with the given id
+     * @throws DepotNotFoundException
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Optional<Depot>>> depot(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Optional<Depot>>> depot(@PathVariable Long id) throws DepotNotFoundException {
         logger.info("depot");
         
         Optional<Depot> depot = depotService.depot(id);
@@ -107,9 +111,10 @@ public class DepotController {
      * 
      * @param id the unique identifier of the depot to delete
      * @return a String indicating whether the depot was deleted or not
+     * @throws DepotNotFoundException
      */
     @DeleteMapping("/{id}/delete")
-    public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) throws DepotNotFoundException {
         logger.info("delete");
 
         depotService.delete(id);

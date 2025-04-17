@@ -1,18 +1,20 @@
 package com.info803.dependency_manager_api.application;
 
+import com.info803.dependency_manager_api.adapters.api.exception.customs.account.AccountEmailAlreadyInUseException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.account.AccountUpdateException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.depot.DepotNotFoundException;
 import com.info803.dependency_manager_api.infrastructure.persistence.account.Account;
 import com.info803.dependency_manager_api.infrastructure.persistence.account.AccountRepository;
 import com.info803.dependency_manager_api.infrastructure.persistence.depot.Depot;
 import com.info803.dependency_manager_api.infrastructure.persistence.depot.DepotRepository;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.account.AccountDeleteException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.account.AccountNotFoundException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
-
-import javax.security.auth.login.AccountException;
-import javax.security.auth.login.AccountNotFoundException;
 
 
 @Service
@@ -40,11 +42,17 @@ public class AccountService {
         return account;
     }
 
-    public Optional<Account> me(String email) {
-        return accountRepository.findByEmail(email);
+    public Optional<Account> me(String email) throws AccountNotFoundException {
+        Optional<Account> account = accountRepository.findByEmail(email);
+
+        if (!account.isPresent()) {
+            throw new AccountNotFoundException("Account not found");
+        }
+
+        return account;
     }
 
-    public void delete(Long accountId) throws AccountException {
+    public void delete(Long accountId) throws AccountDeleteException, AccountNotFoundException {
         Optional<Account> account = accountRepository.findById(accountId);
         if (!account.isPresent()) {
             throw new AccountNotFoundException("Account not found");
@@ -56,29 +64,33 @@ public class AccountService {
         }
     }
 
-    public Account update(Long accountId, Account account) {
+    public Account update(Long accountId, Account account) throws AccountUpdateException, AccountEmailAlreadyInUseException, AccountNotFoundException {
         // Retrieve the account from the database
-        Account existingAccount = accountRepository.findById(accountId)
-        .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+        Optional<Account> optExistingAccount = accountRepository.findById(accountId);
+        if (!optExistingAccount.isPresent()) {
+            throw new AccountNotFoundException("Account not found");
+        }
+        Account existingAccount = optExistingAccount.get();
 
         // Check if the email is already in use by another account
         Optional<Account> accountWithMail = accountRepository.findByEmail(account.getEmail());
+
         if (accountWithMail.isPresent() && !accountWithMail.get().getId().equals(existingAccount.getId())) {
-            throw new IllegalArgumentException("Email already in use");
+            throw new AccountEmailAlreadyInUseException("Email already in use");
         }
         try {
             account.setPassword(passwordEncoder.encode(account.getPassword()));
             accountRepository.save(existingAccount);
             return existingAccount;
         } catch (Exception e) {
-            throw new IllegalArgumentException("Account not updated : " + e.getMessage());
+            throw new AccountUpdateException("Account update failed: " + e.getMessage(), e);
         }
     }
 
-    public List<Depot> accountDepots(Long accountId) {
+    public List<Depot> accountDepots(Long accountId) throws AccountNotFoundException, DepotNotFoundException {
         Optional<Account> account = accountRepository.findById(accountId);
         if (!account.isPresent()) {
-            throw new IllegalArgumentException("Account not found");
+            throw new AccountNotFoundException("Account not found");
         }
         try {
             return depotRepository.findByAccountId(accountId);

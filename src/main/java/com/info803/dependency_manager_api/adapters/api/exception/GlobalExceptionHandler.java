@@ -30,6 +30,11 @@ import com.info803.dependency_manager_api.adapters.api.exception.customs.technol
 import com.info803.dependency_manager_api.adapters.api.response.ApiResponse;
 import com.info803.dependency_manager_api.adapters.api.response.ResponseUtil;
 
+import jakarta.ws.rs.NotFoundException;
+
+import javax.security.auth.login.AccountException;
+
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -45,12 +50,56 @@ public class GlobalExceptionHandler {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    // ----------------------------
+    // ---- General Exceptions ----
+    // ----------------------------
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         logger.error(ex.getMessage(), ex);
         String message = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
         return new ResponseEntity<>(ResponseUtil.error(message), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<String>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        logger.error(ex.getMessage(), ex);
+        ApiResponse<String> response = ResponseUtil.error(ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<String>> handleIllegalStateException(IllegalStateException ex) {
+        logger.error(ex.getMessage(), ex);
+        ApiResponse<String> response = ResponseUtil.error(ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiResponse<String>> handleNotFoundException(NotFoundException ex) {
+        logger.error(ex.getMessage(), ex);
+        ApiResponse<String> response = ResponseUtil.error(ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+    
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<String>> handleGeneralException(Exception ex) {
+        logger.error(ex.getMessage(), ex);
+        ApiResponse<String> response = ResponseUtil.error(ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponse<String>> handleRuntimeException(RuntimeException ex) {
+        logger.error(ex.getMessage(), ex);
+        ApiResponse<String> response = ResponseUtil.error(ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
+    // -----------------------------------
+    // ---- Authentication Exceptions ----
+    // -----------------------------------
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<String>> handleIllegalArgumentException(IllegalArgumentException ex) {

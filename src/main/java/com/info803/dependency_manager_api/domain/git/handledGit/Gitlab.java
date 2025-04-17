@@ -1,9 +1,12 @@
 package com.info803.dependency_manager_api.domain.git.handledGit;
 
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitPullRequestException;
 import com.info803.dependency_manager_api.config.EncryptionService;
 import com.info803.dependency_manager_api.domain.git.AbstractGit;
 import com.info803.dependency_manager_api.domain.technology.TechnologyScannerService;
 import com.info803.dependency_manager_api.infrastructure.persistence.depot.Depot;
+
+import jakarta.ws.rs.NotFoundException;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -79,11 +82,11 @@ public class Gitlab extends AbstractGit {
     }
 
     @Override
-    public String gitCreatePullRequest(Depot depot, String newBranchName) {
+    public String gitCreatePullRequest(Depot depot, String newBranchName) throws GitPullRequestException {
         String owner = extractOwner(depot.getUrl());
         String repoName = extractRepoName(depot.getUrl());
         if (owner == null || repoName == null) {
-            throw new RuntimeException("Could not extract owner/repo name from URL: " + depot.getUrl());
+            throw new IllegalArgumentException("Could not extract owner/repo name from URL: " + depot.getUrl());
         }
         String namespacedPath = owner + "/" + repoName;
 
@@ -92,35 +95,50 @@ public class Gitlab extends AbstractGit {
         String mrTitle = "Dependency Manager: Update Dependencies";
         String mrDescription = "Automated merge request to update project dependencies.";
         String token = depot.getToken();
+
+        GitLabApi gitLabApi = new GitLabApi(this.gitApiUrl, token);
+
         try {
-
-            // Initialize GitLab API Client
-            GitLabApi gitLabApi = new GitLabApi(this.gitApiUrl, token);
-
             // Find the project using the namespaced path
             Project project = gitLabApi.getProjectApi().getProject(namespacedPath);
             if (project == null) {
-                throw new RuntimeException("GitLab project not found: " + namespacedPath);
+                throw new NotFoundException("Project not found: " + namespacedPath);
             }
             // Verify local branch exists
-            try (Git git = Git.open(new File(depot.getPath()))) {
-                if (git.branchList().call().stream().noneMatch(ref -> ref.getName().endsWith("/" + pullRequestBranch))) {
-                     throw new RuntimeException("Source branch '" + pullRequestBranch + "' does not exist locally in repository path: " + depot.getPath());
-                }
-            } catch (GitAPIException | IOException e) {
-                throw new RuntimeException("Failed to verify local branches: " + e.getMessage(), e);
+            if (!verifyLocalBranchExists(depot, pullRequestBranch)) {
+                throw new GitPullRequestException("Source branch '" + pullRequestBranch + "' does not exist locally in repository path: " + depot.getPath());
             }
 
-            // Create Merge Request using the retrieved Project ID (more robust)
+            return createMergeRequest(gitLabApi, project, pullRequestBranch, baseBranch, mrTitle, mrDescription);
+        } catch (Exception e) {
+            throw new GitPullRequestException("An error occurred during merge request creation: " + e.getMessage(), e);
+        } finally {
+            gitLabApi.close();
+        }
+    }
+
+    // -- Private methods --
+    private boolean verifyLocalBranchExists(Depot depot, String pullRequestBranch) throws GitPullRequestException {
+        try (Git git = Git.open(new File(depot.getPath()))) {
+            return git.branchList().call().stream().anyMatch(ref -> ref.getName().endsWith("/" + pullRequestBranch));
+        } catch (GitAPIException | IOException e) {
+            throw new GitPullRequestException("Error during git branch check: " + e.getMessage(), e);
+        }
+    }
+
+    private String createMergeRequest(GitLabApi gitLabApi, Project project, String pullRequestBranch, String baseBranch, String mrTitle, String mrDescription) throws GitPullRequestException {
+        try {
             MergeRequest mergeRequest = gitLabApi.getMergeRequestApi()
                 .createMergeRequest(project.getId(), pullRequestBranch, baseBranch, mrTitle, mrDescription, null);
-
+    
             return "Merge request created successfully on GitLab (ID: " + mergeRequest.getIid() + ") for branch '" + pullRequestBranch + "' into '" + baseBranch + "'.";
-
+    
         } catch (GitLabApiException e) {
-             throw new RuntimeException("Failed to create GitLab merge request: " + e.getMessage() + " for branch '" + pullRequestBranch + "' into '" + baseBranch + "'. On project: " + namespacedPath, e);
-        } catch (Exception e) {
-            throw new RuntimeException("An error occurred during merge request creation: " + e.getMessage(), e);
+            if (e.getMessage().contains("Merge request already exists")) {
+                throw new GitPullRequestException("Merge request already exists for branch '" + pullRequestBranch + "' into '" + baseBranch + "'.");
+            } else {
+                throw new GitPullRequestException("Failed to create GitLab merge request: " + e.getMessage() + " for branch '" + pullRequestBranch + "' into '" + baseBranch + "'.", e);
+            }
         }
     }
 }
