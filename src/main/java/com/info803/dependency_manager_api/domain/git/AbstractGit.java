@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
@@ -14,6 +13,18 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import com.info803.dependency_manager_api.infrastructure.persistence.depot.Depot;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitActionException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitAddException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitBranchException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitCheckoutException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitCloneException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitCodeException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitCommitException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitDeleteException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitNoChangesException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitPullException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitPullRequestException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitPushException;
 import com.info803.dependency_manager_api.config.EncryptionService;
 import com.info803.dependency_manager_api.domain.dependency.Dependency;
 import com.info803.dependency_manager_api.domain.technology.AbstractTechnology;
@@ -48,7 +59,7 @@ public abstract class AbstractGit {
 
     public abstract String extractRepoName(String url);
 
-    public <T> T executeGitAction(Depot depot, Function<Depot, T> gitAction) {
+    public <T> T executeGitAction(Depot depot, GitFunction<Depot, T> gitAction) throws GitActionException {
         try {
             depot.setToken(encryptionService.decrypt(depot.getToken()));
             T result = gitAction.apply(depot);
@@ -58,6 +69,7 @@ public abstract class AbstractGit {
             throw new RuntimeException(e.getMessage());
         }
     }
+    
 
     /**
      * Creates a new branch, adds all changes, commits them, and pushes them to the remote repository.
@@ -125,6 +137,10 @@ public abstract class AbstractGit {
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, token))
                 .call();
             return "Depot pulled successfully to " + path;
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (RepositoryNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -133,10 +149,11 @@ public abstract class AbstractGit {
     /**
      * Lists all files in the cloned repository at depots/<id>
      * @return an array of File objects representing the files in the repository
-     * @throws RepositoryNotFoundException if the cloned repository does not exist
-     * @throws RuntimeException if any other error occurs
-     */
-    public List<File> gitCode(Depot depot) {
+     * @throws GitCodeException
+          * @throws RepositoryNotFoundException 
+          * @throws IllegalArgumentException
+          */
+         public List<File> gitCode(Depot depot) throws GitCodeException, RepositoryNotFoundException {
         String path = depot.getPath();
         if (path == null) {
             throw new RuntimeException("Git code : Path is null");
@@ -149,6 +166,10 @@ public abstract class AbstractGit {
             }
             // Liste tous les fichiers dans le répertoire cloné
             return listDirectoryFiles(repoDirectory);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (RepositoryNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -157,10 +178,11 @@ public abstract class AbstractGit {
     /**
      * Deletes the cloned repository at depots/<id>
      * @return a String indicating whether the depot was deleted or not
-     * @throws RepositoryNotFoundException if the cloned repository does not exist
-     * @throws RuntimeException if any other error occurs
-     */
-    public String gitDelete(Depot depot) {
+     * @throws GitDeleteException
+     *  @throws RepositoryNotFoundException 
+     * @throws IllegalArgumentException
+    */
+    public String gitDelete(Depot depot) throws GitDeleteException, RepositoryNotFoundException {
         String path = depot.getPath();
         if (path == null) {
             return "Error deleting depot code: depot code path is null";
@@ -175,6 +197,10 @@ public abstract class AbstractGit {
             deleteDirectoryContent(repoDirectory);
             repoDirectory.delete();
             return "Depot deleted successfully";
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (RepositoryNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -194,6 +220,8 @@ public abstract class AbstractGit {
 
         try {
             return technologyScannerService.detectTechnologies(path);
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -215,7 +243,8 @@ public abstract class AbstractGit {
             List<AbstractTechnology> technologies = gitCodeTechnologies(depot);
             // Get dependencies used in the cloned repository directory
             return technologyScannerService.detectDependencies(technologies);
-            
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -226,9 +255,11 @@ public abstract class AbstractGit {
      * @param depot The Depot object representing the repository.
      * @param filepattern The pattern of files to add (e.g., "." for all changes).
      * @return A String indicating the result of the add operation.
-     * @throws RepositoryNotFoundException if the repository cannot be found.
-     */
-    public String gitAdd(Depot depot, String filepattern) throws RepositoryNotFoundException {
+     * @throws GitAddException
+     * @throws RepositoryNotFoundException 
+     * @throws GitNoChangesException 
+    */
+    public String gitAdd(Depot depot, String filepattern) throws GitAddException, RepositoryNotFoundException, GitNoChangesException {
         String path = depot.getPath();
         if (path == null) {
             throw new RuntimeException("Git add : Path is null");
@@ -241,6 +272,8 @@ public abstract class AbstractGit {
             } else {
                 throw new RuntimeException("No changes to add");
             }
+        } catch (GitNoChangesException e) {
+            throw e;
         } catch (RepositoryNotFoundException e) {
              throw e; // Re-throw specific exception
         } catch (Exception e) {
@@ -262,6 +295,8 @@ public abstract class AbstractGit {
         try (Git git = Git.open(new File(path))) {
             git.commit().setMessage(message).call();
             return "Changes committed successfully with message: " + message;
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (RepositoryNotFoundException e) {
              throw e; // Re-throw specific exception
         } catch (Exception e) {
@@ -285,6 +320,10 @@ public abstract class AbstractGit {
 
         try (Git git = Git.open(new File(path))) {
             return git.getRepository().getBranch();
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (RepositoryNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Error during git branch: " + e.getMessage(), e);
         }
@@ -307,6 +346,8 @@ public abstract class AbstractGit {
                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, token))
                .call();
             return "Changes pushed successfully to remote repository.";
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (RepositoryNotFoundException e) {
              throw e; // Re-throw specific exception
         } catch (Exception e) {
@@ -335,6 +376,11 @@ public abstract class AbstractGit {
                 .setStartPoint("origin/" + branch)
                 .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                 .call();
+                return branchName;
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (RepositoryNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Error during git create branch: " + e.getMessage(), e);
         }
@@ -354,6 +400,11 @@ public abstract class AbstractGit {
         }
         try (Git git = Git.open(new File(path))) {
             git.checkout().setName(branchName).call();
+            return "Checked out branch: " + branchName; 
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (RepositoryNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Error during git checkout branch: " + e.getMessage(), e);
         }
@@ -376,6 +427,8 @@ public abstract class AbstractGit {
                 technology.updateDependencies(dependencies.get(technology.getName()));
             }
             return "Dependencies updated successfully";
+        } catch (IllegalArgumentException e) {
+            throw e;    
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

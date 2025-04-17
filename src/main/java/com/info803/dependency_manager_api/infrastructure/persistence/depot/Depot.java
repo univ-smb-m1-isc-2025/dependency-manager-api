@@ -6,7 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-
+import jakarta.persistence.PrePersist;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -46,6 +46,9 @@ public class Depot {
     @Column(unique = false, nullable = true)
     private Date lastDependenciesUpdate;
 
+    @Column(unique = false, nullable = true)
+    private String path;
+
     // Constructors
     public Depot(String name, String url, String username, String token, Long accountId) {
         this.name = name;
@@ -58,13 +61,9 @@ public class Depot {
         this.lastDependenciesUpdate = null;
     }
 
-    // Methods
-
-    /**
-     * Returns the path of the depot
-     * @return the path of the depot
-     */
-    public String getPath() {
-        return "depots/" + this.id;
+    @PrePersist
+    private void init() {
+        this.path = "depots/" + this.id;
     }
+
 }

@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 
+import com.info803.dependency_manager_api.adapters.api.exception.customs.technology.TechnologyExtractDependenciesException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.technology.TechnologyUpdateDependenciesException;
 import com.info803.dependency_manager_api.domain.dependency.Dependency;
 import com.info803.dependency_manager_api.domain.dependency.PythonDependency;
 import com.info803.dependency_manager_api.domain.technology.AbstractTechnology;
@@ -22,40 +24,45 @@ public class PythonTechnology extends AbstractTechnology {
     }
 
     @Override
-    public List<Dependency> extractDependencies(String content) {
+    public List<Dependency> extractDependencies(String content) throws TechnologyExtractDependenciesException {
         List<Dependency> dependencies = new ArrayList<>();
 
         // Regex pour capter : nom, opérateur, version
         Pattern pattern = Pattern.compile("^\\s*([a-zA-Z0-9_.-]+)\\s*(==|>=|<=|~=|!=|>|<)?\\s*([a-zA-Z0-9_.+-]*)");
 
-        String[] lines = content.split("\n");
-        for (String line : lines) {
-            // Ignorer les commentaires et lignes vides
-            line = line.trim();
-            if (line.isEmpty() || line.startsWith("#") || line.startsWith("-r") || line.startsWith("--")) {
-                continue;
+        try  {
+
+            String[] lines = content.split("\n");
+            for (String line : lines) {
+                // Ignorer les commentaires et lignes vides
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#") || line.startsWith("-r") || line.startsWith("--")) {
+                    continue;
+                }
+
+                Matcher matcher = pattern.matcher(line);
+                if (matcher.find()) {
+                    String name = matcher.group(1);
+                    String versionOp = matcher.group(2);
+                    String version = matcher.group(3);
+
+                    // Si pas d'opérateur/version, on met version à null ou vide
+                    String versionStr = (versionOp != null && version != null && !version.isEmpty()) 
+                        ? version 
+                        : null;
+
+                    dependencies.add(new PythonDependency(name, versionStr, versionOp));
+                }
             }
-
-            Matcher matcher = pattern.matcher(line);
-            if (matcher.find()) {
-                String name = matcher.group(1);
-                String versionOp = matcher.group(2);
-                String version = matcher.group(3);
-
-                // Si pas d'opérateur/version, on met version à null ou vide
-                String versionStr = (versionOp != null && version != null && !version.isEmpty()) 
-                    ? version 
-                    : null;
-
-                dependencies.add(new PythonDependency(name, versionStr, versionOp));
-            }
+            
+        } catch (Exception e) {
+            throw new TechnologyExtractDependenciesException("Error extracting dependencies : " + e.getMessage(), e);
         }
-
         return dependencies;
     }
 
     @Override
-    public void updateDependencies(List<Dependency> dependencies) {
+    public void updateDependencies(List<Dependency> dependencies) throws TechnologyUpdateDependenciesException {
         // Steps :
         // 1. For each file in filesPaths, read the file
         // 2. For each dependency in dependencies, check if it is in the file
@@ -74,7 +81,7 @@ public class PythonTechnology extends AbstractTechnology {
                 FileUtils.writeStringToFile(new File(file), content, "UTF-8");
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error updating dependencies : " + e.getMessage());
+            throw new TechnologyUpdateDependenciesException("Error updating dependencies : " + e.getMessage(), e);
         }
     }
 

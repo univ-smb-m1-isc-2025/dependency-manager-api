@@ -9,6 +9,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+import com.info803.dependency_manager_api.adapters.api.exception.customs.dependency.DependencyDetectLatestVersionException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.dependency.DependencyFetchingException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.technology.TechnologyExtractDependenciesException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.technology.TechnologyUpdateDependenciesException;
 import com.info803.dependency_manager_api.domain.dependency.Dependency;
 
 @Getter
@@ -32,7 +36,15 @@ public abstract class AbstractTechnology {
     }
 
     // Methods
-    public List<Dependency> detectDependencies() {
+    /** 
+     * Detects the dependencies in the files given by the filesPaths attribute
+     * @return a list of dependencies
+     * @throws RuntimeException if there is an error while reading the file
+     * @throws DependencyDetectLatestVersionException if there is an error while detecting the latest version of a dependency
+     * @throws DependencyFetchingException if there is an error while fetching the latest version of a dependency
+     * @throws TechnologyExtractDependenciesException 
+     * */
+    public List<Dependency> detectDependencies() throws DependencyDetectLatestVersionException, DependencyFetchingException, TechnologyExtractDependenciesException {
         List<Dependency> dependencies = new ArrayList<>();
         for (String file : filesPaths) {
             List<Dependency> extractedDependencies = extractDependenciesFromFile(new File(file));
@@ -53,15 +65,15 @@ public abstract class AbstractTechnology {
      * Extracts the dependencies from a file containing a JSON dependency list
      * @param file the file containing the dependency list
      * @return a list of dependencies
-     * @throws RuntimeException if there is an error while reading the file
+     * @throws TechnologyExtractDependenciesException 
      */
-    private List<Dependency> extractDependenciesFromFile(File file) {
+    private List<Dependency> extractDependenciesFromFile(File file) throws TechnologyExtractDependenciesException {
         List<Dependency> dependencies = new ArrayList<>();
         try {
             String content = Files.readString(file.toPath());
             dependencies = extractDependencies(content);
         } catch (Exception e) {
-            throw new RuntimeException("Error while reading file " + file.getAbsolutePath(), e);
+            throw new TechnologyExtractDependenciesException("Error while reading file " + file.getAbsolutePath(), e);
         }
         return dependencies;
     }
@@ -71,13 +83,13 @@ public abstract class AbstractTechnology {
      * @param content the string containing the dependencies
      * @return a list of dependencies
      */
-    public abstract List<Dependency> extractDependencies(String content);
+    public abstract List<Dependency> extractDependencies(String content) throws TechnologyExtractDependenciesException;
 
     /**
      * Updates the dependencies in the files given by the filesPaths attribute
      * @param dependencies the dependencies to update
      */
-    public abstract void updateDependencies(List<Dependency> dependencies);
+    public abstract void updateDependencies(List<Dependency> dependencies) throws TechnologyUpdateDependenciesException;
 
     /**
      * Clones the technology to a new instance

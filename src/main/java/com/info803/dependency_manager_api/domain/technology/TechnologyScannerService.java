@@ -8,6 +8,9 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.info803.dependency_manager_api.adapters.api.exception.customs.dependency.DependencyDetectLatestVersionException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.dependency.DependencyFetchingException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.technology.TechnologyExtractDependenciesException;
 import com.info803.dependency_manager_api.domain.dependency.Dependency;
 
 @Service
@@ -63,7 +66,7 @@ public class TechnologyScannerService {
         return detectedTechnologies;
     }
 
-    public Map<String, List<Dependency>> detectDependencies(List<AbstractTechnology> technologies) {
+    public Map<String, List<Dependency>> detectDependencies(List<AbstractTechnology> technologies) throws DependencyDetectLatestVersionException, DependencyFetchingException, TechnologyExtractDependenciesException {
         Map<String, List<Dependency>> dependenciesMap = new HashMap<>();
         for (AbstractTechnology technology : technologies) {
             List<Dependency> dependencies = new ArrayList<>();

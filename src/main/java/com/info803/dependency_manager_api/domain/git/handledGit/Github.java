@@ -76,7 +76,9 @@ public class Github extends AbstractGit {
 
     @Override
     public String extractOwner(String url) {
-        if (url == null) return null;
+        if (!isGit(url)) {
+            return null;
+        }
         String path = url.replaceFirst("https?://github.com/", "");
         String[] parts = path.split("/");
         return (parts.length > 0) ? parts[0] : null;

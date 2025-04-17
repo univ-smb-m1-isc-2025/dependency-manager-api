@@ -52,7 +52,7 @@ public class AccountService {
         try {
             accountRepository.delete(account.get());
         } catch (Exception e) {
-            throw new AccountException("Account not deleted : " + e.getMessage());
+            throw new AccountDeleteException("Account not deleted : " + e.getMessage(), e);
         }
     }
 
@@ -83,7 +83,7 @@ public class AccountService {
         try {
             return depotRepository.findByAccountId(accountId);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Depots not found : " + e.getMessage());
+            throw new DepotNotFoundException("Depots not found : " + e.getMessage(), e);
         }
     }
 }

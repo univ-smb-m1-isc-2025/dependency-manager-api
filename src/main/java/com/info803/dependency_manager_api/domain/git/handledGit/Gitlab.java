@@ -44,9 +44,10 @@ public class Gitlab extends AbstractGit {
     }
 
     @Override
-    public String extractOwner(String url) {
-        // GitLab uses namespace/project-name, owner is the namespace part
-        if (url == null) return null;
+    public String extractOwner(String url)  {
+        if (!isGit(url)) {
+            return null;
+        }
         try {
             URL parsedUrl = new URL(url);
             String path = parsedUrl.getPath().substring(1); // Remove leading /
