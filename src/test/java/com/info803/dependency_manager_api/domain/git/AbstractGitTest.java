@@ -164,7 +164,7 @@ public class AbstractGitTest {
         String result = abstractGit.gitGetBranch(depot);
 
         // Assert
-        assertEquals("main", result);
+        assertEquals("main || master", result);
     }
 
     @Test
