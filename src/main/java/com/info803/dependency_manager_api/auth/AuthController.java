@@ -8,6 +8,8 @@ import com.info803.dependency_manager_api.auth.DTO.RegisterAccountDTO;
 import com.info803.dependency_manager_api.auth.DTO.AuthResponseDTO;
 import com.info803.dependency_manager_api.config.jwt.JwtService;
 import com.info803.dependency_manager_api.infrastructure.persistence.account.Account;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.auth.AuthenticationAuthenticateException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.auth.AuthenticationRegisterException;
 import com.info803.dependency_manager_api.adapters.api.response.ApiResponse;
 import com.info803.dependency_manager_api.adapters.api.response.ResponseUtil;
 
@@ -34,8 +36,14 @@ public class AuthController {
         this.authenticationService = authenticationService;
     }
 
+    /**
+     * Register a new account
+     * @param registerAccountDTO the account DTO containing the email and password
+     * @return a String indicating whether the account was registered or not
+     * @throws AuthenticationRegisterException 
+     */
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<AuthResponseDTO>> register(@Valid @RequestBody RegisterAccountDTO registerAccountDTO) {
+    public ResponseEntity<ApiResponse<AuthResponseDTO>> register(@Valid @RequestBody RegisterAccountDTO registerAccountDTO) throws AuthenticationRegisterException {
         logger.info("register");
         Account registeredAccount = authenticationService.register(registerAccountDTO);
         String jwtToken = jwtService.generateToken(registeredAccount);
@@ -46,8 +54,14 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    /**
+     * Authenticate an account
+     * @param loginAccountDTO the account DTO containing the email and password
+     * @return a String indicating whether the account was authenticated or not
+     * @throws AuthenticationAuthenticateException 
+     */
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<AuthResponseDTO>> authenticate(@Valid @RequestBody LoginAccountDTO loginAccountDTO) {
+    public ResponseEntity<ApiResponse<AuthResponseDTO>> authenticate(@Valid @RequestBody LoginAccountDTO loginAccountDTO) throws AuthenticationAuthenticateException {
         logger.info("login");
         Account authenticatedAccount = authenticationService.authenticate(loginAccountDTO);
         String jwtToken = jwtService.generateToken(authenticatedAccount);
@@ -58,6 +72,10 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     * Logout an account
+     * @return a String indicating whether the account was logged out or not
+     */
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout() {
         logger.info("logout");

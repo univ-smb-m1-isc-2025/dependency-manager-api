@@ -1,6 +1,14 @@
 package com.info803.dependency_manager_api.adapters.api;
 
 import com.info803.dependency_manager_api.infrastructure.persistence.depot.Depot;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.depot.DepotCreationException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.depot.DepotNotFoundException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.depot.DepotUpdateException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitCloneException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitCodeException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitDeleteException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitPullException;
+import com.info803.dependency_manager_api.adapters.api.exception.customs.git.GitPullRequestException;
 import com.info803.dependency_manager_api.adapters.api.response.ApiResponse;
 import com.info803.dependency_manager_api.adapters.api.response.ResponseUtil;
 import com.info803.dependency_manager_api.application.DepotService;
@@ -20,6 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.security.auth.login.AccountNotFoundException;
+
 import java.io.File;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -58,9 +69,10 @@ public class DepotController {
      * 
      * @param id the unique identifier of the depot to retrieve
      * @return the Depot object with the given id
+     * @throws DepotNotFoundException
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Optional<Depot>>> depot(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Optional<Depot>>> depot(@PathVariable Long id) throws DepotNotFoundException {
         logger.info("depot");
         
         Optional<Depot> depot = depotService.depot(id);
@@ -75,9 +87,11 @@ public class DepotController {
      * 
      * @param depot the Depot object containing the name and description
      * @return a String indicating whether the depot was created or not
+     * @throws AccountNotFoundException
+     * @throws DepotCreationException
      */
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<Depot>> create(@RequestBody Depot depot) {
+    public ResponseEntity<ApiResponse<Depot>> create(@RequestBody Depot depot) throws AccountNotFoundException, DepotCreationException {
         logger.info("create");
 
         Depot newDepot = depotService.create(depot);
@@ -92,9 +106,10 @@ public class DepotController {
      * 
      * @param id the unique identifier of the depot to delete
      * @return a String indicating whether the depot was deleted or not
+     * @throws DepotNotFoundException
      */
     @DeleteMapping("/{id}/delete")
-    public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) throws DepotNotFoundException {
         logger.info("delete");
 
         depotService.delete(id);
@@ -110,9 +125,11 @@ public class DepotController {
      * @param id the unique identifier of the depot to update
      * @param depot the Depot object containing the name and description
      * @return a String indicating whether the depot was updated or not
+     * @throws DepotNotFoundException
+     * @throws DepotUpdateException
      */
     @PutMapping("/{id}/update")
-    public ResponseEntity<ApiResponse<Depot>> update(@PathVariable Long id, @RequestBody Depot depot) {
+    public ResponseEntity<ApiResponse<Depot>> update(@PathVariable Long id, @RequestBody Depot depot) throws DepotNotFoundException, DepotUpdateException {
         logger.info("update");
             
         Depot updatedDepot = depotService.update(id, depot);
@@ -126,9 +143,10 @@ public class DepotController {
      * Clones a depot by its id into a new directory
      * @param id the unique identifier of the depot to clone
      * @return a String indicating whether the depot was cloned or not
+     * @throws GitCloneException
      */
     @GetMapping("/{id}/clone")
-    public ResponseEntity<ApiResponse<String>> gitClone(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> gitClone(@PathVariable Long id) throws GitCloneException {
         logger.info("clone");
             
         String msg = depotService.gitClone(id);
@@ -142,9 +160,10 @@ public class DepotController {
      * Pulls a depot by its id
      * @param id the unique identifier of the depot to pull
      * @return a String indicating whether the depot was pulled or not
+     * @throws GitPullException 
      */
     @GetMapping("/{id}/pull")
-    public ResponseEntity<ApiResponse<String>> gitPull(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> gitPull(@PathVariable Long id) throws GitPullException {
         logger.info("pull");
         
         String msg = depotService.gitPull(id);
@@ -158,9 +177,10 @@ public class DepotController {
      * Display the code of a depot
      * @param id the unique identifier of the depot to display
      * @return a String indicating whether the depot was displayed or not
+     * @throws GitCodeException 
      */
     @GetMapping("/{id}/code")
-    public ResponseEntity<ApiResponse<List<File>>> gitCode(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<List<File>>> gitCode(@PathVariable Long id) throws GitCodeException {
         logger.info("code");
 
         List<File> files = depotService.gitCode(id);
@@ -174,9 +194,10 @@ public class DepotController {
      * Deletes the code of a depot
      * @param id the unique identifier of the depot to delete
      * @return a String indicating whether the code was deleted or not
+     * @throws GitDeleteException 
      */
     @DeleteMapping("/{id}/code/delete")
-    public ResponseEntity<ApiResponse<String>> gitCodeDelete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> gitCodeDelete(@PathVariable Long id) throws GitDeleteException {
         logger.info("codeDelete");
         
         String msg = depotService.gitDelete(id);
@@ -190,9 +211,10 @@ public class DepotController {
      * Detects the technologies used in the code of a depot
      * @param id the unique identifier of the depot to analyze
      * @return a String indicating whether the depot was analyzed or not, and a Map containing the technologies used in the depot
+     * @throws GitCodeException 
      */
     @GetMapping("{id}/technologies")
-    public ResponseEntity<ApiResponse<List<AbstractTechnology>>> gitCodeTechnologies(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<List<AbstractTechnology>>> gitCodeTechnologies(@PathVariable Long id) throws GitCodeException {
         logger.info("depotTechnologies");
         
         List<AbstractTechnology> technologies = depotService.gitCodeTechnologies(id);
@@ -206,9 +228,10 @@ public class DepotController {
      * Detects the dependencies used in the code of a depot
      * @param id the unique identifier of the depot to analyze
      * @return a String indicating whether the depot was analyzed or not, and a Map containing the dependencies used in the depot
+     * @throws GitCodeException 
      */
     @GetMapping("{id}/dependencies")
-    public ResponseEntity<ApiResponse<Map<String, List<Dependency>>>> gitCodeDependencies(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Map<String, List<Dependency>>>> gitCodeDependencies(@PathVariable Long id) throws GitCodeException {
         logger.info("depotDependencies");
         
         Map<String, List<Dependency>> dependencies = depotService.gitCodeDependencies(id);
@@ -223,9 +246,10 @@ public class DepotController {
      * Updates the dependencies of a depot
      * @param id the unique identifier of the depot to update
      * @return a String indicating whether the dependencies were updated or not
+     * @throws DepotUpdateException 
      */
     @PutMapping("/{id}/dependencies/update")
-    public ResponseEntity<ApiResponse<String>> gitCodeDependenciesUpdate(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> gitCodeDependenciesUpdate(@PathVariable Long id) throws DepotUpdateException {
         logger.info("depotDependenciesUpdate");
 
         String msg = depotService.updateDepotDependencies(id);
@@ -237,7 +261,7 @@ public class DepotController {
 
 
     @PostMapping("/{id}/pullRequest")
-    public ResponseEntity<ApiResponse<String>> gitPullRequest(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> gitPullRequest(@PathVariable Long id) throws GitPullRequestException {
         logger.info("pullRequest");
 
         String msg = depotService.gitPullRequest(id);
